@@ -19,22 +19,14 @@ const MORNING_STEPS = {
   ],
 };
 
-// 0=Sun,1=Mon,...,6=Sat
 const NIGHT_SCHEDULE = [
-  // Sun=0
-  { type: 'nia', cleanser: 'Solimo Carbón', serum: 'Niacinamida T.O. (3 gotas)', eyes: 'Beauty of Joseon', cream: 'Akytania o Cien Q10' },
-  // Mon=1
-  { type: 'nia', cleanser: 'Solimo Carbón', serum: 'Niacinamida T.O. (3 gotas)', eyes: 'Beauty of Joseon', cream: 'Akytania o Cien Q10' },
-  // Tue=2
-  { type: 'nia', cleanser: 'Solimo Carbón', serum: 'Niacinamida T.O. (3 gotas)', eyes: 'Beauty of Joseon', cream: 'Akytania o Cien Q10' },
-  // Wed=3
-  { type: 'olay', cleanser: 'CeraVe (Suave)', serum: '❌ NADA', eyes: 'Beauty of Joseon', cream: 'Olay Vit C + AHA' },
-  // Thu=4
-  { type: 'nia', cleanser: 'Solimo Carbón', serum: 'Niacinamida T.O. (3 gotas)', eyes: 'Beauty of Joseon', cream: 'Akytania o Cien Q10' },
-  // Fri=5
-  { type: 'nia', cleanser: 'Solimo Carbón', serum: 'Niacinamida T.O. (3 gotas)', eyes: 'Beauty of Joseon', cream: 'Akytania o Cien Q10' },
-  // Sat=6
-  { type: 'olay', cleanser: 'CeraVe (Suave)', serum: '❌ NADA', eyes: 'Beauty of Joseon', cream: 'Olay Vit C + AHA' },
+  { type: 'nia',  cleanser: 'Solimo Carbón',   serum: 'Niacinamida T.O. (3 gotas)', eyes: 'Beauty of Joseon', cream: 'Akytania o Cien Q10' },
+  { type: 'nia',  cleanser: 'Solimo Carbón',   serum: 'Niacinamida T.O. (3 gotas)', eyes: 'Beauty of Joseon', cream: 'Akytania o Cien Q10' },
+  { type: 'nia',  cleanser: 'Solimo Carbón',   serum: 'Niacinamida T.O. (3 gotas)', eyes: 'Beauty of Joseon', cream: 'Akytania o Cien Q10' },
+  { type: 'olay', cleanser: 'CeraVe (Suave)',  serum: '❌ NADA',                    eyes: 'Beauty of Joseon', cream: 'Olay Vit C + AHA' },
+  { type: 'nia',  cleanser: 'Solimo Carbón',   serum: 'Niacinamida T.O. (3 gotas)', eyes: 'Beauty of Joseon', cream: 'Akytania o Cien Q10' },
+  { type: 'nia',  cleanser: 'Solimo Carbón',   serum: 'Niacinamida T.O. (3 gotas)', eyes: 'Beauty of Joseon', cream: 'Akytania o Cien Q10' },
+  { type: 'olay', cleanser: 'CeraVe (Suave)',  serum: '❌ NADA',                    eyes: 'Beauty of Joseon', cream: 'Olay Vit C + AHA' },
 ];
 
 const TIPS = [
@@ -50,6 +42,7 @@ const TIPS = [
 // === STATE ===
 let season = 'invierno';
 let seasonManana = 'invierno';
+let currentTheme = 'day';
 
 // === INIT ===
 document.addEventListener('DOMContentLoaded', () => {
@@ -60,6 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
   renderNightCalendar();
   renderTips();
   initServiceWorker();
+  initThemeToggle();
+  initGlowTracking();
+  initHapticFeedback();
+  autoThemeByTime();
 });
 
 // === DATE ===
@@ -87,7 +84,6 @@ function renderHoy() {
   const dow = now.getDay();
   document.getElementById('dayBadge').textContent = DAYS_SHORT[dow];
   document.getElementById('dayTitle').textContent = DAYS[dow];
-
   renderMorningSteps('morningRoutine', season);
   renderNightToday(dow);
 }
@@ -96,7 +92,7 @@ function renderMorningSteps(containerId, s) {
   const container = document.getElementById(containerId);
   const steps = MORNING_STEPS[s];
   container.innerHTML = steps.map((step, i) => `
-    <div class="step-card ${step.color}">
+    <div class="step-card ${step.color}" data-step="${i}">
       <div class="step-number">${step.icon}</div>
       <div class="step-info">
         <div class="step-label">Paso ${i + 1} — ${step.label}</div>
@@ -105,24 +101,22 @@ function renderMorningSteps(containerId, s) {
       </div>
     </div>
   `).join('');
+  attachStepInteractions(container);
 }
 
 function renderNightToday(dow) {
   const schedule = NIGHT_SCHEDULE[dow];
   const container = document.getElementById('nightRoutine');
   const alertBox = document.getElementById('nightAlert');
-
   const isOlay = schedule.type === 'olay';
-
   const steps = [
     { label: 'Limpieza', product: schedule.cleanser, icon: '🫧', color: 'step-blue' },
     { label: isOlay ? 'Sérum — DESCANSO' : 'Sérum Cara', product: schedule.serum, icon: isOlay ? '🚫' : '💚', color: isOlay ? 'step-purple' : 'step-green' },
     { label: 'Contorno Ojos', product: schedule.eyes, icon: '👁', color: 'step-purple' },
     { label: 'Crema Final', product: schedule.cream, icon: '🌙', color: 'step-pink' },
   ];
-
   container.innerHTML = steps.map((step, i) => `
-    <div class="step-card ${step.color}">
+    <div class="step-card ${step.color}" data-step="${i}">
       <div class="step-number">${step.icon}</div>
       <div class="step-info">
         <div class="step-label">Paso ${i + 1} — ${step.label}</div>
@@ -130,12 +124,99 @@ function renderNightToday(dow) {
       </div>
     </div>
   `).join('');
-
+  attachStepInteractions(container);
   if (isOlay) {
     alertBox.innerHTML = '<strong>⚠️ Noche Olay</strong>Recuerda: NO uses Niacinamida esta noche. La Olay ya es el tratamiento completo. Deja 1 dedo de distancia de la zona de ojos.';
     alertBox.classList.add('show');
   } else {
     alertBox.classList.remove('show');
+  }
+}
+
+// === HAPTIC FEEDBACK ===
+function hapticPulse() {
+  if (navigator.vibrate) navigator.vibrate([12, 8, 6]);
+}
+
+function initHapticFeedback() {}
+
+function attachStepInteractions(container) {
+  container.querySelectorAll('.step-card').forEach(card => {
+    card.addEventListener('click', () => {
+      hapticPulse();
+      card.classList.add('haptic-pop');
+      card.addEventListener('animationend', () => card.classList.remove('haptic-pop'), { once: true });
+    });
+  });
+}
+
+// === GLOW TRACKING (mouse/touch) ===
+function initGlowTracking() {
+  document.addEventListener('mousemove', handleGlow);
+  document.addEventListener('touchmove', e => {
+    const t = e.touches[0];
+    handleGlowAt(t.clientX, t.clientY);
+  }, { passive: true });
+
+  // DeviceMotion tilt glow (mobile)
+  if (window.DeviceMotionEvent) {
+    window.addEventListener('deviceorientation', e => {
+      const gamma = e.gamma || 0; // left-right tilt
+      const beta  = e.beta  || 0; // front-back tilt
+      const xPct = Math.min(Math.max((gamma + 45) / 90, 0), 1) * 100;
+      const yPct = Math.min(Math.max((beta  - 10) / 80, 0), 1) * 100;
+      document.querySelectorAll('.step-card').forEach(card => {
+        card.style.setProperty('--glow-pos',
+          `radial-gradient(circle 90px at ${xPct}% ${yPct}%, rgba(255,255,255,0.14), transparent 70%)`);
+      });
+    }, { passive: true });
+  }
+}
+
+function handleGlow(e) { handleGlowAt(e.clientX, e.clientY); }
+
+function handleGlowAt(cx, cy) {
+  // Day card glow
+  const dayCard = document.querySelector('.day-card');
+  if (dayCard) {
+    const r = dayCard.getBoundingClientRect();
+    const x = ((cx - r.left) / r.width  * 100).toFixed(1);
+    const y = ((cy - r.top)  / r.height * 100).toFixed(1);
+    const overlay = dayCard.querySelector('.card-glow-overlay');
+    if (overlay) overlay.style.background =
+      `radial-gradient(circle 130px at ${x}% ${y}%, rgba(255,255,255,0.22), transparent 70%)`;
+  }
+  // Step cards glow
+  document.querySelectorAll('.step-card').forEach(card => {
+    const r = card.getBoundingClientRect();
+    const x = ((cx - r.left) / r.width  * 100).toFixed(1);
+    const y = ((cy - r.top)  / r.height * 100).toFixed(1);
+    card.style.setProperty('--glow-pos',
+      `radial-gradient(circle 80px at ${x}% ${y}%, rgba(255,255,255,0.12), transparent 70%)`);
+  });
+}
+
+// === THEME TOGGLE (Day <-> Night Eclipse) ===
+function initThemeToggle() {
+  const btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    currentTheme = currentTheme === 'day' ? 'night' : 'day';
+    applyTheme(currentTheme);
+  });
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const icon = document.querySelector('.theme-icon');
+  if (icon) icon.textContent = theme === 'night' ? '☀️' : '🌙';
+}
+
+function autoThemeByTime() {
+  const h = new Date().getHours();
+  if (h >= 20 || h < 7) {
+    currentTheme = 'night';
+    applyTheme('night');
   }
 }
 
@@ -158,26 +239,22 @@ window.setSeasonManana = function(s) {
 function renderManana() {
   const container = document.getElementById('morningFullList');
   const steps = MORNING_STEPS[seasonManana];
-  container.innerHTML = `
-    <div class="routine-list">
-      ${steps.map((step, i) => `
-        <div class="step-card ${step.color}">
-          <div class="step-number">${step.icon}</div>
-          <div class="step-info">
-            <div class="step-label">Paso ${i + 1} — ${step.label}</div>
-            <div class="step-product">${step.product}</div>
-            <div class="step-note">${step.note}</div>
-          </div>
-        </div>
-      `).join('')}
+  container.innerHTML = `<div class="routine-list">${steps.map((step, i) => `
+    <div class="step-card ${step.color}" data-step="${i}">
+      <div class="step-number">${step.icon}</div>
+      <div class="step-info">
+        <div class="step-label">Paso ${i + 1} — ${step.label}</div>
+        <div class="step-product">${step.product}</div>
+        <div class="step-note">${step.note}</div>
+      </div>
     </div>
-  `;
+  `).join('')}</div>`;
+  attachStepInteractions(container);
 }
 
 // === RENDER NIGHT CALENDAR ===
 function renderNightCalendar() {
   const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-  // Reorder to Mon–Sun
   const order = [1, 2, 3, 4, 5, 6, 0];
   const container = document.getElementById('nightCalendar');
   container.innerHTML = `<div class="night-calendar">${order.map(i => {
@@ -190,22 +267,10 @@ function renderNightCalendar() {
           <span>${isOlay ? '✨ Noche Olay' : '💚 Niacinamida'}</span>
         </div>
         <div class="night-steps">
-          <div class="night-step">
-            <span class="night-step-label">🫧 Limpieza</span>
-            <span class="night-step-product">${s.cleanser}</span>
-          </div>
-          <div class="night-step">
-            <span class="night-step-label">💊 Sérum Cara</span>
-            <span class="night-step-product">${s.serum}</span>
-          </div>
-          <div class="night-step">
-            <span class="night-step-label">👁 Contorno Ojos</span>
-            <span class="night-step-product">${s.eyes}</span>
-          </div>
-          <div class="night-step">
-            <span class="night-step-label">🌙 Crema Final</span>
-            <span class="night-step-product">${s.cream}</span>
-          </div>
+          <div class="night-step"><span class="night-step-label">🫧 Limpieza</span><span class="night-step-product">${s.cleanser}</span></div>
+          <div class="night-step"><span class="night-step-label">💊 Sérum Cara</span><span class="night-step-product">${s.serum}</span></div>
+          <div class="night-step"><span class="night-step-label">👁 Contorno Ojos</span><span class="night-step-product">${s.eyes}</span></div>
+          <div class="night-step"><span class="night-step-label">🌙 Crema Final</span><span class="night-step-product">${s.cream}</span></div>
         </div>
       </div>
     `;

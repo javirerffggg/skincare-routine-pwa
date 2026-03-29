@@ -1,26 +1,39 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="day">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#f9e0ec" />
+  <meta name="theme-color" content="#FFF5F7" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Skincare" />
   <meta name="description" content="Tu Plan Maestro de Skincare personalizado" />
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
-  <title>✨ Skincare Routine</title>
+  <title>✨ The Glow — Skincare</title>
 </head>
 <body>
+  <!-- Floating Orb Background -->
+  <div class="aura-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
   <div id="app">
     <!-- Header -->
     <header class="header">
       <div class="header-content">
-        <h1>✨ Skincare</h1>
+        <h1>The Glow</h1>
         <p class="header-sub" id="currentDate"></p>
       </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
+        <span class="theme-icon">🌙</span>
+      </button>
     </header>
 
     <!-- Tab Navigation -->
@@ -33,10 +46,11 @@
 
     <!-- Tab: HOY -->
     <section id="tab-hoy" class="tab-content active">
-      <div class="day-card">
+      <div class="day-card premium-card">
         <div class="day-badge" id="dayBadge"></div>
         <h2 id="dayTitle"></h2>
         <p class="day-subtitle">Tu rutina completa para hoy</p>
+        <div class="card-glow-overlay"></div>
       </div>
 
       <div class="section-title">☀️ Esta Mañana</div>
