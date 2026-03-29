@@ -25,8 +25,33 @@
     <div class="orb orb-3" id="orb3"></div>
   </div>
 
-  <!-- Grain noise canvas (cinematographic texture) -->
+  <!-- Grain noise -->
   <canvas id="grainCanvas" aria-hidden="true"></canvas>
+
+  <!-- Weather shader canvas: rain drops digitales bluréadas -->
+  <canvas id="weatherCanvas" aria-hidden="true"></canvas>
+
+  <!-- SVG Defs: gradientes para Progress Rings -->
+  <svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
+    <defs>
+      <!-- Gradiente líquido dorado→rosado para los anillos de progreso -->
+      <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%"   stop-color="#FFD080" />
+        <stop offset="50%"  stop-color="#F4A0C0" />
+        <stop offset="100%" stop-color="#C48A96" />
+      </linearGradient>
+      <!-- Variante azul para fase day -->
+      <linearGradient id="ringGradientDay" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%"   stop-color="#80C8FF" />
+        <stop offset="100%" stop-color="#1E88C8" />
+      </linearGradient>
+      <!-- Variante noche -->
+      <linearGradient id="ringGradientNight" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%"   stop-color="#C090E0" />
+        <stop offset="100%" stop-color="#6A4CA0" />
+      </linearGradient>
+    </defs>
+  </svg>
 
   <div id="app">
     <header class="header">
@@ -40,13 +65,6 @@
       </button>
     </header>
 
-    <nav class="tab-nav">
-      <button class="tab-btn active" data-tab="hoy">🗓 Hoy</button>
-      <button class="tab-btn" data-tab="manana">☀️ Mañana</button>
-      <button class="tab-btn" data-tab="noche">🌙 Noche</button>
-      <button class="tab-btn" data-tab="tips">💡 Tips</button>
-    </nav>
-
     <!-- Tab: HOY -->
     <section id="tab-hoy" class="tab-content active">
       <div class="day-card premium-card">
@@ -55,6 +73,42 @@
         <p class="day-subtitle">Tu rutina completa para hoy</p>
         <div class="card-glow-overlay"></div>
       </div>
+
+      <!-- Progress Ring de Cristal -->
+      <div class="progress-ring-wrap" id="progressRingWrap">
+        <svg class="progress-ring-svg" viewBox="0 0 68 68" id="progressRingSvg" aria-label="Progreso de rutina">
+          <!-- Tubo vacío (track) -->
+          <circle class="ring-track"
+            cx="34" cy="34" r="28"
+            stroke-dasharray="175.93" stroke-dashoffset="0"
+            transform="rotate(-90 34 34)" />
+          <!-- Brillo interior del tubo -->
+          <circle class="ring-shine"
+            cx="34" cy="34" r="28"
+            stroke-dasharray="20 156"
+            transform="rotate(-90 34 34)" />
+          <!-- Líquido que se llena (el JS controla stroke-dashoffset) -->
+          <circle class="ring-liquid" id="ringLiquid"
+            cx="34" cy="34" r="28"
+            stroke-dasharray="175.93" stroke-dashoffset="175.93"
+            transform="rotate(-90 34 34)" />
+          <!-- Burbuja que sube -->
+          <circle class="ring-bubble" id="ringBubble" cx="34" cy="6" r="2.5" />
+          <!-- Texto central -->
+          <text class="ring-center-text" x="34" y="31">
+            <tspan class="ring-count" id="ringCount" x="34" dy="0">0/4</tspan>
+          </text>
+          <text class="ring-center-text" x="34" y="43">
+            <tspan class="ring-label-text" x="34" dy="0">PASOS</tspan>
+          </text>
+        </svg>
+        <div class="ring-info">
+          <div class="ring-info-title">🌟 Progreso Diario</div>
+          <div class="ring-info-sub" id="ringInfoSub">Completa los pasos de tu rutina para llenar el anillo</div>
+          <div class="ring-streak" id="ringStreak">✨ Racha: 1 día</div>
+        </div>
+      </div>
+
       <div class="section-title">☀️ Esta Mañana</div>
       <div class="routine-list" id="morningRoutine"></div>
       <div class="season-toggle">
@@ -104,6 +158,28 @@
     </section>
   </div>
 
+  <!-- FLOATING ACTION DOCK — Squircle flotante con blur masivo -->
+  <nav class="floating-dock" role="navigation" aria-label="Navegación principal">
+    <button class="dock-btn active" data-tab="hoy" aria-label="Hoy">
+      <span class="dock-icon">🗓</span>
+      <span>Hoy</span>
+    </button>
+    <button class="dock-btn" data-tab="manana" aria-label="Mañana">
+      <span class="dock-icon">☀️</span>
+      <span>Mañana</span>
+    </button>
+    <div class="dock-sep" aria-hidden="true"></div>
+    <button class="dock-btn" data-tab="noche" aria-label="Noche">
+      <span class="dock-icon">🌙</span>
+      <span>Noche</span>
+    </button>
+    <button class="dock-btn" data-tab="tips" aria-label="Tips">
+      <span class="dock-icon">💡</span>
+      <span>Tips</span>
+    </button>
+  </nav>
+
   <script src="app.js"></script>
+  <script src="features.js"></script>
 </body>
 </html>
