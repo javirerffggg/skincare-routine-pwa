@@ -1,0 +1,360 @@
+/* === RESET & BASE === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --pink: #f06292;
+  --pink-light: #fce4ec;
+  --pink-mid: #f48fb1;
+  --purple: #9c27b0;
+  --purple-light: #f3e5f5;
+  --gold: #ff8f00;
+  --gold-light: #fff8e1;
+  --blue: #1565c0;
+  --blue-light: #e3f2fd;
+  --green: #2e7d32;
+  --green-light: #e8f5e9;
+  --bg: #fdf6f9;
+  --card: #ffffff;
+  --text: #2d2d2d;
+  --text-muted: #888;
+  --radius: 18px;
+  --shadow: 0 4px 20px rgba(240,98,146,0.12);
+  --shadow-sm: 0 2px 10px rgba(0,0,0,0.08);
+  --safe-top: env(safe-area-inset-top, 44px);
+  --safe-bottom: env(safe-area-inset-bottom, 34px);
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+#app {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding-bottom: calc(80px + var(--safe-bottom));
+}
+
+/* === HEADER === */
+.header {
+  background: linear-gradient(135deg, #f06292 0%, #ce93d8 100%);
+  padding: calc(var(--safe-top) + 16px) 24px 24px;
+  color: white;
+}
+.header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+.header-sub { font-size: 14px; opacity: 0.85; margin-top: 4px; text-transform: capitalize; }
+
+/* === TAB NAV === */
+.tab-nav {
+  display: flex;
+  background: white;
+  border-bottom: 1px solid #f0e0ea;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+.tab-btn {
+  flex: 1;
+  border: none;
+  background: none;
+  padding: 14px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.tab-btn.active {
+  color: var(--pink);
+}
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 2.5px;
+  background: var(--pink);
+  border-radius: 2px;
+}
+
+/* === TAB CONTENT === */
+.tab-content { display: none; padding: 16px; animation: fadeIn 0.2s ease; }
+.tab-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* === DAY CARD === */
+.day-card {
+  background: linear-gradient(135deg, #f06292, #ce93d8);
+  border-radius: var(--radius);
+  padding: 24px;
+  color: white;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.day-card::before {
+  content: '';
+  position: absolute;
+  top: -20px; right: -20px;
+  width: 120px; height: 120px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 50%;
+}
+.day-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.day-card h2 { font-size: 26px; font-weight: 700; }
+.day-subtitle { font-size: 13px; opacity: 0.8; margin-top: 4px; }
+
+/* === SECTION TITLE === */
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 20px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.section-header { margin-bottom: 20px; }
+.section-header h2 { font-size: 22px; font-weight: 700; }
+.section-header p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+/* === ROUTINE STEPS === */
+.routine-list { display: flex; flex-direction: column; gap: 10px; }
+
+.step-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s;
+}
+.step-card:active { transform: scale(0.98); }
+
+.step-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+.step-info { flex: 1; }
+.step-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+.step-product {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.step-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* Step color themes */
+.step-pink .step-number { background: var(--pink-light); color: var(--pink); }
+.step-purple .step-number { background: var(--purple-light); color: var(--purple); }
+.step-gold .step-number { background: var(--gold-light); color: var(--gold); }
+.step-blue .step-number { background: var(--blue-light); color: var(--blue); }
+.step-green .step-number { background: var(--green-light); color: var(--green); }
+
+/* === NIGHT TAG === */
+.night-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 6px;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+.tag-niacinamida { background: #e8f5e9; color: #2e7d32; }
+.tag-olay { background: #fff3e0; color: #e65100; }
+.tag-descanso { background: #f3e5f5; color: #9c27b0; }
+
+/* === SEASON TOGGLE === */
+.season-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.toggle-group { display: flex; background: #f5e6ef; border-radius: 20px; padding: 3px; gap: 2px; }
+.toggle-btn {
+  border: none;
+  background: none;
+  padding: 6px 14px;
+  border-radius: 17px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s;
+}
+.toggle-btn.active { background: white; color: var(--pink); box-shadow: var(--shadow-sm); }
+
+/* === ALERT BOX === */
+.alert-box {
+  background: var(--gold-light);
+  border-left: 4px solid var(--gold);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  display: none;
+}
+.alert-box.show { display: block; }
+.alert-box strong { color: var(--gold); display: block; margin-bottom: 4px; font-size: 14px; }
+
+/* === NIGHT CALENDAR === */
+.night-calendar { display: flex; flex-direction: column; gap: 10px; }
+
+.night-row {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.night-row.olay-night { border-left: 4px solid var(--gold); }
+.night-row.nia-night { border-left: 4px solid var(--green); }
+
+.night-day {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.night-day span {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+}
+.olay-night .night-day span { background: #fff3e0; color: var(--gold); }
+.nia-night .night-day span { background: var(--green-light); color: var(--green); }
+
+.night-steps { display: flex; flex-direction: column; gap: 6px; }
+.night-step {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f5f0f3;
+}
+.night-step:last-child { border-bottom: none; }
+.night-step-label { color: var(--text-muted); font-size: 11px; }
+.night-step-product { font-weight: 600; color: var(--text); text-align: right; max-width: 60%; }
+
+/* === TIPS === */
+.tips-list { display: flex; flex-direction: column; gap: 12px; }
+.tip-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.tip-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.tip-content h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 5px;
+}
+.tip-content p {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* === INSTALL BANNER === */
+#installBanner {
+  display: none;
+  position: fixed;
+  bottom: calc(var(--safe-bottom) + 16px);
+  left: 16px; right: 16px;
+  background: linear-gradient(135deg, #f06292, #ce93d8);
+  color: white;
+  border-radius: 16px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 30px rgba(240,98,146,0.35);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+#installBanner.hidden { display: none; }
+#installBanner .install-text { flex: 1; }
+#installBanner .install-text strong { display: block; font-size: 14px; }
+#installBtn {
+  background: white;
+  color: var(--pink);
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#closeBanner {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 4px;
+  opacity: 0.8;
+}
+
+/* iPhone 13 Pro Max safe areas */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  #app { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+}

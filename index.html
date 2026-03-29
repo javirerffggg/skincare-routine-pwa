@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#f9e0ec" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Skincare" />
+  <meta name="description" content="Tu Plan Maestro de Skincare personalizado" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="style.css" />
+  <title>✨ Skincare Routine</title>
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <h1>✨ Skincare</h1>
+        <p class="header-sub" id="currentDate"></p>
+      </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="hoy">🗓 Hoy</button>
+      <button class="tab-btn" data-tab="manana">☀️ Mañana</button>
+      <button class="tab-btn" data-tab="noche">🌙 Noche</button>
+      <button class="tab-btn" data-tab="tips">💡 Tips</button>
+    </nav>
+
+    <!-- Tab: HOY -->
+    <section id="tab-hoy" class="tab-content active">
+      <div class="day-card">
+        <div class="day-badge" id="dayBadge"></div>
+        <h2 id="dayTitle"></h2>
+        <p class="day-subtitle">Tu rutina completa para hoy</p>
+      </div>
+
+      <div class="section-title">☀️ Esta Mañana</div>
+      <div class="routine-list" id="morningRoutine"></div>
+
+      <div class="season-toggle">
+        <span>Temporada:</span>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btnInvierno" onclick="setSeason('invierno')">❄️ Invierno</button>
+          <button class="toggle-btn" id="btnVerano" onclick="setSeason('verano')">☀️ Verano</button>
+        </div>
+      </div>
+
+      <div class="section-title">🌙 Esta Noche</div>
+      <div class="routine-list" id="nightRoutine"></div>
+
+      <div class="alert-box" id="nightAlert"></div>
+    </section>
+
+    <!-- Tab: MAÑANA -->
+    <section id="tab-manana" class="tab-content">
+      <div class="section-header">
+        <h2>☀️ Rutina de Mañana</h2>
+        <p>Lunes a Domingo — Siempre igual</p>
+      </div>
+
+      <div class="season-toggle">
+        <span>Ver para:</span>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btnInviernoM" onclick="setSeasonManana('invierno')">❄️ Invierno</button>
+          <button class="toggle-btn" id="btnVeranoM" onclick="setSeasonManana('verano')">☀️ Verano</button>
+        </div>
+      </div>
+
+      <div id="morningFullList"></div>
+    </section>
+
+    <!-- Tab: NOCHE -->
+    <section id="tab-noche" class="tab-content">
+      <div class="section-header">
+        <h2>🌙 Calendario Nocturno</h2>
+        <p>Alterna Niacinamida y Olay para no irritar</p>
+      </div>
+      <div id="nightCalendar"></div>
+    </section>
+
+    <!-- Tab: TIPS -->
+    <section id="tab-tips" class="tab-content">
+      <div class="section-header">
+        <h2>💡 Recordatorios de Oro</h2>
+        <p>Guárdalos bien</p>
+      </div>
+      <div id="tipsList"></div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

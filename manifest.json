@@ -1,0 +1,33 @@
+{
+  "name": "Skincare Routine",
+  "short_name": "Skincare",
+  "description": "Tu Plan Maestro de Skincare personalizado",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fdf6f9",
+  "theme_color": "#f06292",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["health", "lifestyle"],
+  "lang": "es"
+}
