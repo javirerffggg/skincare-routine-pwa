@@ -1,897 +1,636 @@
-/* === RESET === */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* =============================================================
+   SKINCARE RITUAL PWA — Elite CSS Architecture v2.0
+   Arquitectura Éclat | Puerto Real, Cádiz
+   ============================================================= */
 
-@supports (font-variation-settings: normal) {
-  html, body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-    font-optical-sizing: auto;
+/* —————————————————————————
+   1. TOKENS & CUSTOM PROPERTIES
+————————————————————————— */
+:root {
+  /* Solar Engine — se sobreescriben en JS */
+  --hue-base: 210;
+  --hue-secondary: 180;
+  --lightness-base: 94;
+  --saturation-base: 40;
+  --bg-opacity: 0.1;
+  --mesh-color-1: rgba(220, 240, 255, 0.7);
+  --mesh-color-2: rgba(200, 230, 220, 0.5);
+  --mesh-color-3: rgba(240, 248, 255, 0.6);
+  --card-tint: rgba(255, 255, 255, 0.22);
+  --text-primary: hsl(210, 40%, 15%);
+  --pill-bg: rgba(200, 235, 255, 0.4);
+  --pill-text: #1a4a6b;
+
+  /* Spacing fluido — Squircle Canvas */
+  --space-xs:  clamp(0.25rem, 1vw,  0.5rem);
+  --space-sm:  clamp(0.5rem,  1.5vw, 0.75rem);
+  --space-md:  clamp(1rem,    3vw,  1.5rem);
+  --space-lg:  clamp(1.5rem,  4vw,  2.5rem);
+  --space-xl:  clamp(2rem,    5vw,  4rem);
+
+  /* Typography */
+  --font-serif:   'Playfair Display', Georgia, serif;
+  --font-sans:    'Inter', system-ui, sans-serif;
+
+  /* Glass material */
+  --glass-bg:         rgba(255, 255, 255, 0.35);
+  --glass-border:     rgba(255, 255, 255, 0.4);
+  --glass-blur:       20px;
+  --glass-shadow:     0 8px 50px rgba(0,0,0,0.05), 0 2px 12px rgba(0,0,0,0.04);
+  --glass-rim-light:  inset 0 0.5px 0 rgba(255,255,255,0.85);
+
+  /* Z-index layers */
+  --z-core:       0;
+  --z-atmosphere: 10;
+  --z-main:       20;
+  --z-dock:       30;
+
+  /* Motion */
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast:   180ms;
+  --duration-normal: 420ms;
+  --duration-slow:   700ms;
+
+  /* Border radius squircle approx */
+  --radius-card:  22px;
+  --radius-pill:  50px;
+  --radius-dock:  28px;
+}
+
+/* Fase Amanecer */
+[data-phase="dawn"] {
+  --glass-bg: rgba(255, 210, 220, 0.28);
+  --glass-border: rgba(255, 200, 215, 0.45);
+}
+/* Fase Noche */
+[data-phase="night"] {
+  --glass-bg: rgba(60, 40, 120, 0.30);
+  --glass-border: rgba(160, 130, 255, 0.3);
+  --glass-rim-light: inset 0 0.5px 0 rgba(180,150,255,0.6);
+}
+/* Fase Golden */
+[data-phase="golden"] {
+  --glass-bg: rgba(255, 180, 80, 0.22);
+  --glass-border: rgba(255, 160, 60, 0.40);
+  --glass-rim-light: inset 0 0.5px 0 rgba(255, 220, 150, 0.8);
+}
+
+
+/* —————————————————————————
+   2. RESET & BASE
+————————————————————————— */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0; padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body.app-body {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  position: relative;
+  transition: color var(--duration-slow) var(--ease-premium);
+  padding:
+    env(safe-area-inset-top, 0)
+    1.5rem
+    env(safe-area-inset-bottom, 0);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 90px);
+}
+
+
+/* —————————————————————————
+   3. Z-STACK LAYERS
+————————————————————————— */
+
+/* Z-0: Core — Mesh Gradient */
+.layer-core {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-core);
+  overflow: hidden;
+}
+
+.mesh-gradient {
+  width: 100%; height: 100%;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%, var(--mesh-color-1), transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 70%, var(--mesh-color-2), transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, var(--mesh-color-3), transparent 70%),
+    hsl(var(--hue-base), calc(var(--saturation-base) * 1%), calc(var(--lightness-base) * 1%));
+  transition:
+    background var(--duration-slow) var(--ease-premium),
+    opacity var(--duration-slow) var(--ease-premium);
+  animation: meshDrift 20s ease-in-out infinite alternate;
+}
+
+@keyframes meshDrift {
+  0%   { transform: scale(1) translate(0, 0); }
+  33%  { transform: scale(1.04) translate(-1%, 1%); }
+  66%  { transform: scale(1.02) translate(1%, -0.5%); }
+  100% { transform: scale(1.05) translate(-0.5%, 0.5%); }
+}
+
+/* Z-10: Atmosphere — Grain + Particles */
+.layer-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-atmosphere);
+  pointer-events: none;
+}
+
+.grain-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  opacity: 0.02; /* Grain cinematográfico al 2% */
+  mix-blend-mode: overlay;
+}
+
+.particles-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  opacity: 0.4;
+}
+
+
+/* —————————————————————————
+   4. PREMIUM GLASS MIXIN
+————————————————————————— */
+.premium-glass {
+  background:     var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-rim-light);
+  transition:
+    background var(--duration-slow) var(--ease-premium),
+    border-color var(--duration-slow) var(--ease-premium),
+    box-shadow var(--duration-normal) var(--ease-premium);
+}
+
+
+/* —————————————————————————
+   5. APP MAIN (Z-20)
+————————————————————————— */
+.app-main {
+  position: relative;
+  z-index: var(--z-main);
+  max-width: 430px;
+  margin: 0 auto;
+  padding-top: var(--space-md);
+}
+
+
+/* —————————————————————————
+   6. HEADER ÉCLAT
+————————————————————————— */
+.header-eclat {
+  padding: var(--space-md) 0 var(--space-sm);
+}
+
+.header-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.header-title {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-style: italic;
+  font-size: clamp(2rem, 8vw, 2.8rem);
+  line-height: 1.1;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  transition: color var(--duration-slow) var(--ease-premium);
+}
+
+.header-title em {
+  font-style: italic;
+  opacity: 0.75;
+}
+
+.header-time {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  color: var(--text-primary);
+  opacity: 0.55;
+  display: block;
+  margin-top: var(--space-xs);
+}
+
+/* Phase Pill */
+.phase-pill {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-pill);
+  background: var(--pill-bg);
+  flex-shrink: 0;
+  margin-top: 4px;
+  min-width: 110px;
+}
+
+.phase-pill__icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.phase-pill__info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.phase-pill__label {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.7rem;
+  color: var(--pill-text);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.phase-pill__solar {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 0.6rem;
+  color: var(--pill-text);
+  opacity: 0.7;
+  letter-spacing: 0.04em;
+}
+
+
+/* —————————————————————————
+   7. TABS RUTINA
+————————————————————————— */
+.routine-tabs {
+  display: flex;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+  padding: 4px;
+  border-radius: var(--radius-card);
+  background: rgba(0,0,0,0.04);
+}
+
+.tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px var(--space-sm);
+  border: none;
+  border-radius: calc(var(--radius-card) - 4px);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-primary);
+  opacity: 0.55;
+  transition: all var(--duration-fast) var(--ease-premium);
+}
+
+.tab-btn.active {
+  opacity: 1;
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.tab-icon {
+  font-size: 1rem;
+}
+
+
+/* —————————————————————————
+   8. RITUAL CARDS (The Ritual)
+————————————————————————— */
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.ritual-card {
+  position: relative;
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  cursor: pointer;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  will-change: transform;
+  /* Soft shadow Z-20 */
+  box-shadow:
+    0 4px 50px rgba(0,0,0,0.05),
+    0 1px 10px rgba(0,0,0,0.04),
+    var(--glass-rim-light);
+  /* Staggered entrance — se añade --card-delay desde JS */
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+  animation: cardEntrance var(--duration-slow) var(--ease-premium) forwards;
+  animation-delay: var(--card-delay, 0ms);
+  transition:
+    background var(--duration-slow) var(--ease-premium),
+    box-shadow var(--duration-normal) var(--ease-premium),
+    transform var(--duration-fast) var(--ease-premium);
+}
+
+@keyframes cardEntrance {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
-/* ===================================================
-   DESIGN TOKENS
-   =================================================== */
-:root {
-  --c-orb1: rgba(242,176,195,0.60);
-  --c-orb2: rgba(196,218,251,0.50);
-  --c-orb3: rgba(210,230,210,0.45);
-  --c-bg:   #FFF5F7;
-  --c-text: #2A1F2D;
-
-  --glass-base:         rgba(255,255,255,0.28);
-  --glass-base-border:  rgba(255,255,255,0.35);
-  --glass-mid:          rgba(255,255,255,0.52);
-  --glass-mid-border:   rgba(255,255,255,0.70);
-  --glass-top:          rgba(255,255,255,0.82);
-  --glass-top-border:   rgba(255,255,255,0.95);
-
-  --glass-white:  var(--glass-mid);
-  --glass-border: var(--glass-mid-border);
-  --card-bg:      var(--glass-mid);
-  --card-border:  var(--glass-mid-border);
-  --text:         var(--c-text);
-  --text-muted:   #9A8FA0;
-  --accent:       #C48A96;
-  --accent-dark:  #9E6A75;
-
-  --rim-light: linear-gradient(135deg,
-    rgba(255,255,255,0.90) 0%,
-    rgba(255,255,255,0.40) 30%,
-    rgba(255,255,255,0.10) 60%,
-    rgba(255,255,255,0.55) 100%
-  );
-
-  --shadow-glass: 0 8px 48px rgba(180,130,150,0.14), inset 0 1px 0 rgba(255,255,255,0.90);
-  --shadow-card:  0 4px 40px rgba(196,138,150,0.12);
-  --shadow-pink:   0 8px 48px rgba(244,143,177,0.28), 0 2px 16px rgba(194,96,122,0.16);
-  --shadow-purple: 0 8px 48px rgba(156,39,176,0.20),  0 2px 16px rgba(156,39,176,0.12);
-  --shadow-gold:   0 8px 48px rgba(255,143,0,0.22),   0 2px 16px rgba(192,120,0,0.14);
-  --shadow-blue:   0 8px 48px rgba(21,101,192,0.20),  0 2px 16px rgba(21,101,192,0.12);
-  --shadow-green:  0 8px 48px rgba(46,125,50,0.20),   0 2px 16px rgba(46,125,50,0.12);
-
-  --radius:   22px;
-  --radius-sm:14px;
-  --blur:     22px;
-  --safe-top:    env(safe-area-inset-top, 44px);
-  --safe-bottom: env(safe-area-inset-bottom, 34px);
-
-  /* Bézier curves */
-  --spring:        cubic-bezier(0.22, 1, 0.36, 1);
-  --bounce:        cubic-bezier(0.34, 1.56, 0.64, 1);
-  --liquid-out:    cubic-bezier(0.55, 0, 0.85, 0.06);
-  --liquid-in:     cubic-bezier(0.16, 1, 0.3, 1);
-  --spring-resist: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --snap:          cubic-bezier(0.18, 0.89, 0.32, 1.12);
-
-  --done-bg:       rgba(46,125,50,0.08);
-  --done-border:   rgba(46,125,50,0.30);
-  --done-text:     rgba(42,31,45,0.40);
-  --done-check-bg: rgba(46,125,50,0.90);
-
-  --font-weight-hero:    760;
-  --font-weight-title:   640;
-  --font-weight-label:   580;
-  --font-weight-body:    420;
-  --font-weight-muted:   360;
-}
-
-/* === PHASE: DAWN === */
-[data-phase="dawn"] {
-  --text: #2A1F2D; --text-muted: #9A8FA0; --accent: #C48A96; --accent-dark: #9E6A75;
-  --glass-base: rgba(255,235,245,0.30); --glass-mid: rgba(255,245,250,0.55); --glass-top: rgba(255,252,255,0.88);
-  --glass-base-border: rgba(255,200,220,0.35); --glass-mid-border: rgba(255,220,230,0.72); --glass-top-border: rgba(255,240,245,0.96);
-  --glass-white: var(--glass-mid); --glass-border: var(--glass-mid-border); --card-bg: var(--glass-mid); --card-border: var(--glass-mid-border);
-  --shadow-glass: 0 8px 48px rgba(200,160,180,0.14), inset 0 1px 0 rgba(255,255,255,0.92);
-  --rim-light: linear-gradient(135deg, rgba(255,220,230,0.95) 0%, rgba(255,200,215,0.40) 30%, rgba(255,180,200,0.08) 60%, rgba(255,230,240,0.60) 100%);
-}
-[data-phase="day"] {
-  --text: #0A1A2A; --text-muted: #7A8FA0; --accent: #1E88C8; --accent-dark: #1565A0;
-  --glass-base: rgba(230,245,255,0.32); --glass-mid: rgba(240,250,255,0.60); --glass-top: rgba(252,255,255,0.90);
-  --glass-base-border: rgba(160,210,255,0.30); --glass-mid-border: rgba(180,220,255,0.62); --glass-top-border: rgba(210,238,255,0.96);
-  --glass-white: var(--glass-mid); --glass-border: var(--glass-mid-border); --card-bg: var(--glass-mid); --card-border: var(--glass-mid-border);
-  --shadow-glass: 0 8px 48px rgba(100,160,220,0.12), inset 0 1px 0 rgba(255,255,255,0.96);
-  --done-check-bg: rgba(21,101,192,0.85);
-  --rim-light: linear-gradient(135deg, rgba(220,240,255,0.98) 0%, rgba(180,220,255,0.42) 30%, rgba(140,200,255,0.08) 60%, rgba(200,235,255,0.65) 100%);
-}
-[data-phase="dusk"] {
-  --text: #1A0A05; --text-muted: #9A7A6A; --accent: #C8601E; --accent-dark: #A04010;
-  --glass-base: rgba(255,225,200,0.30); --glass-mid: rgba(255,240,225,0.58); --glass-top: rgba(255,252,245,0.88);
-  --glass-base-border: rgba(255,175,110,0.32); --glass-mid-border: rgba(255,190,130,0.62); --glass-top-border: rgba(255,225,190,0.95);
-  --glass-white: var(--glass-mid); --glass-border: var(--glass-mid-border); --card-bg: var(--glass-mid); --card-border: var(--glass-mid-border);
-  --shadow-glass: 0 8px 48px rgba(200,100,40,0.14), inset 0 1px 0 rgba(255,250,240,0.88);
-  --rim-light: linear-gradient(135deg, rgba(255,210,160,0.96) 0%, rgba(255,175,100,0.40) 30%, rgba(255,140,60,0.06) 60%, rgba(255,200,140,0.58) 100%);
-}
-[data-phase="night"] {
-  --text: #EDE8F5; --text-muted: #7A7090; --accent: #8A6AC0; --accent-dark: #6A4CA0;
-  --glass-base: rgba(12,10,30,0.55); --glass-mid: rgba(25,20,50,0.70); --glass-top: rgba(45,38,80,0.88);
-  --glass-base-border: rgba(100,80,170,0.18); --glass-mid-border: rgba(140,110,200,0.28); --glass-top-border: rgba(180,150,240,0.40);
-  --glass-white: var(--glass-mid); --glass-border: var(--glass-mid-border); --card-bg: var(--glass-mid); --card-border: var(--glass-mid-border);
-  --shadow-glass: 0 8px 48px rgba(0,0,0,0.48), inset 0 1px 0 rgba(140,110,200,0.22);
-  --shadow-card: 0 4px 40px rgba(0,0,0,0.38);
-  --done-bg: rgba(60,130,70,0.12); --done-border: rgba(80,180,90,0.25); --done-text: rgba(237,232,245,0.35); --done-check-bg: rgba(60,150,70,0.85);
-  --rim-light: linear-gradient(135deg, rgba(180,150,240,0.55) 0%, rgba(140,110,200,0.22) 30%, rgba(80,60,140,0.04) 60%, rgba(160,130,220,0.30) 100%);
-  --shadow-pink: 0 8px 48px rgba(180,80,140,0.32), 0 2px 16px rgba(160,60,120,0.20);
-  --shadow-purple: 0 8px 48px rgba(140,80,200,0.32), 0 2px 16px rgba(120,60,180,0.20);
-  --shadow-gold: 0 8px 48px rgba(200,140,40,0.30), 0 2px 16px rgba(180,120,20,0.18);
-  --shadow-blue: 0 8px 48px rgba(60,110,220,0.30), 0 2px 16px rgba(40,90,200,0.18);
-  --shadow-green: 0 8px 48px rgba(50,160,80,0.28), 0 2px 16px rgba(40,140,60,0.16);
-}
-[data-theme="night"] {
-  --text: #EDE8F5; --text-muted: #7A7090; --accent: #A87CA0; --accent-dark: #8A5C80;
-  --glass-base: rgba(15,12,35,0.55); --glass-mid: rgba(30,28,50,0.70); --glass-top: rgba(52,44,78,0.88);
-  --glass-base-border: rgba(120,95,180,0.18); --glass-mid-border: rgba(160,130,200,0.28); --glass-top-border: rgba(200,170,240,0.40);
-  --glass-white: var(--glass-mid); --glass-border: var(--glass-mid-border); --card-bg: var(--glass-mid); --card-border: var(--glass-mid-border);
-  --shadow-glass: 0 8px 48px rgba(0,0,0,0.42), inset 0 1px 0 rgba(160,130,200,0.26);
-  --shadow-card: 0 4px 40px rgba(0,0,0,0.32);
-  --done-bg: rgba(60,130,70,0.12); --done-border: rgba(80,180,90,0.25); --done-text: rgba(237,232,245,0.35); --done-check-bg: rgba(60,150,70,0.85);
-  --rim-light: linear-gradient(135deg, rgba(200,170,240,0.52) 0%, rgba(160,130,200,0.22) 30%, rgba(90,68,150,0.04) 60%, rgba(180,150,230,0.28) 100%);
-}
-
-/* ===================================================
-   GRAIN CANVAS
-   =================================================== */
-#grainCanvas {
-  position: fixed; inset: 0; z-index: 2;
-  pointer-events: none; opacity: 0.030;
-  mix-blend-mode: overlay; width: 100%; height: 100%;
-}
-
-/* ===================================================
-   AURA / WEATHER CANVAS
-   =================================================== */
-.aura-bg {
-  position: fixed; inset: 0; z-index: 0; overflow: hidden;
-  transition: background 4s var(--spring);
-}
-.orb {
-  position: absolute; border-radius: 50%;
-  filter: blur(80px); will-change: transform;
-  transition: top 8s var(--spring), left 8s var(--spring),
-              width 6s var(--spring), height 6s var(--spring), background 4s ease;
-}
-.orb-1 { width:360px; height:360px; animation: floatOrb1 20s ease-in-out infinite; }
-.orb-2 { width:300px; height:300px; animation: floatOrb2 26s ease-in-out infinite; }
-.orb-3 { width:260px; height:260px; animation: floatOrb3 22s ease-in-out infinite; }
-@keyframes floatOrb1 {
-  0%,100% { transform: translate(0,0) scale(1); } 25% { transform: translate(30px,50px) scale(1.07); }
-  50% { transform: translate(-20px,30px) scale(0.96); } 75% { transform: translate(20px,-30px) scale(1.04); }
-}
-@keyframes floatOrb2 {
-  0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(-40px,35px) scale(1.10); } 66% { transform: translate(30px,-20px) scale(0.94); }
-}
-@keyframes floatOrb3 {
-  0%,100% { transform: translate(0,0) scale(1); } 40% { transform: translate(25px,-35px) scale(1.05); } 80% { transform: translate(-15px,20px) scale(0.98); }
-}
-.orb-1.halo-touch {
-  transition: top 0.6s var(--spring), left 0.6s var(--spring) !important;
-}
-
-/* ===================================================
-   WEATHER SHADER — Contextual Rain Drops
-   Gotas digitales que caen sutilmente en el fondo.
-   Solo visibles cuando hay lluvia en la ciudad.
-   =================================================== */
-#weatherCanvas {
-  position: fixed; inset: 0; z-index: 1;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 2s var(--spring);
-  width: 100%; height: 100%;
-}
-#weatherCanvas.raining { opacity: 1; }
-
-/* ===================================================
-   BASE STYLES
-   =================================================== */
-html, body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-  background: transparent; color: var(--text);
-  min-height: 100vh; -webkit-font-smoothing: antialiased;
-  overscroll-behavior: none; transition: color 3s ease;
-}
-#app {
-  position: relative; z-index: 3;
-  max-width: 430px; margin: 0 auto; min-height: 100vh;
-  /* Extra bottom padding para el Floating Dock */
-  padding-bottom: calc(96px + var(--safe-bottom));
-  --scroll-stretch: 0;
-  transform: translateY(calc(var(--scroll-stretch) * 1px));
-  transition: transform 0.45s var(--spring-resist);
-}
-#app.spring-active  { transition: transform 0.12s var(--spring-resist); }
-#app.spring-release { transition: transform 0.55s var(--spring); }
-
-/* ===================================================
-   GLASS SURFACE
-   =================================================== */
-.glass-surface { position: relative; isolation: isolate; }
-.glass-surface::before {
-  content: ''; position: absolute; inset: 0; border-radius: inherit;
-  background: var(--glass-base);
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  border: 1px solid var(--glass-base-border); z-index: -2; pointer-events: none;
-}
-.glass-surface::after {
-  content: ''; position: absolute; inset: 0; border-radius: inherit;
-  background: transparent; border: 1px solid transparent;
-  border-image: var(--rim-light) 1; z-index: -1; pointer-events: none;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.82), inset 0 -1px 0 rgba(255,255,255,0.15),
-              inset 1px 0 0 rgba(255,255,255,0.45), inset -1px 0 0 rgba(255,255,255,0.20);
-}
-
-/* ===================================================
-   HEADER
-   =================================================== */
-.header {
-  display: flex; align-items: flex-start; justify-content: space-between;
-  padding: calc(var(--safe-top) + 20px) 24px 20px;
-}
-.header h1 {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 32px; font-weight: var(--font-weight-hero);
-  font-variation-settings: 'wght' var(--font-weight-hero);
-  color: var(--text); letter-spacing: -0.3px; line-height: 1.1; transition: color 3s ease;
-}
-.header-sub {
-  font-size: 13px; font-weight: var(--font-weight-muted);
-  font-variation-settings: 'wght' var(--font-weight-muted);
-  letter-spacing: 0.6px; color: var(--text-muted); margin-top: 5px;
-  text-transform: capitalize; transition: color 3s ease;
-}
-.circadian-label {
-  font-size: 10.5px; font-weight: var(--font-weight-label);
-  font-variation-settings: 'wght' var(--font-weight-label);
-  letter-spacing: 1.2px; text-transform: uppercase; margin-top: 4px;
-  color: var(--accent); opacity: 0.85; transition: color 3s ease;
-}
-.theme-toggle {
-  width: 44px; height: 44px; border-radius: 50%;
-  background: var(--glass-top);
-  backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
-  box-shadow: var(--shadow-glass), inset 0 1px 0 var(--glass-top-border), inset 0 -1px 0 rgba(255,255,255,0.10);
-  cursor: pointer; font-size: 20px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; margin-top: 4px;
-  border: 1px solid rgba(255,255,255,0.80);
-  transition: transform 0.4s var(--spring), background 3s ease, border-color 3s ease;
-  -webkit-user-select: none; user-select: none;
-}
-.theme-toggle:active { transform: scale(0.9); }
-
-/* ===================================================
-   PROGRESS RING DE CRISTAL
-   Tubo de vidrio llenándose de líquido dorado/rosado.
-   Usa SVG + CSS animations.
-   =================================================== */
-.progress-ring-wrap {
-  display: flex; align-items: center; gap: 16px;
-  padding: 16px 20px 12px;
-  margin: 0 0 4px;
-}
-.progress-ring-svg {
-  width: 68px; height: 68px;
-  flex-shrink: 0;
-  filter: drop-shadow(0 4px 16px rgba(196,138,150,0.40));
-  overflow: visible;
-}
-/* Track: tubo de vidrio vacío */
-.ring-track {
-  fill: none;
-  stroke: var(--glass-mid-border);
-  stroke-width: 5;
-  opacity: 0.6;
-}
-/* Shine interior del tubo */
-.ring-shine {
-  fill: none;
-  stroke: rgba(255,255,255,0.55);
-  stroke-width: 1.5;
-  stroke-dasharray: 12 200;
-  stroke-dashoffset: -8;
-  opacity: 0;
-  transition: opacity 0.6s;
-}
-.progress-ring-svg:hover .ring-shine { opacity: 1; }
-/* Líquido: gradiente dorado→rosado */
-.ring-liquid {
-  fill: none;
-  stroke: url(#ringGradient);
-  stroke-width: 5;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 1.2s var(--spring);
-  filter: drop-shadow(0 0 6px rgba(196,138,150,0.60));
-}
-/* Burbuja que sube por el anillo */
-.ring-bubble {
-  fill: rgba(255,255,255,0.80);
-  filter: blur(0.6px);
-  animation: bubbleRise 3s var(--spring) infinite;
-  transform-origin: center;
-  opacity: 0;
-}
-.ring-bubble.active { opacity: 0.9; }
-@keyframes bubbleRise {
-  0%   { transform: scale(0.5); opacity: 0; }
-  30%  { opacity: 0.9; }
-  80%  { transform: scale(1.2); opacity: 0.5; }
-  100% { transform: scale(0.3); opacity: 0; }
-}
-/* Texto central del anillo */
-.ring-center-text { text-anchor: middle; dominant-baseline: central; }
-.ring-count {
-  font-family: 'Playfair Display', serif;
-  font-size: 18px; font-weight: 700;
-  fill: var(--text);
-  transition: fill 3s ease;
-}
-.ring-label-text {
-  font-family: 'Inter', sans-serif;
-  font-size: 7px; font-weight: 600;
-  fill: var(--text-muted);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  transition: fill 3s ease;
-}
-/* Info junto al anillo */
-.ring-info { flex: 1; }
-.ring-info-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 15px; font-weight: 600;
-  color: var(--text); margin-bottom: 4px;
-}
-.ring-info-sub {
-  font-size: 12px; color: var(--text-muted); line-height: 1.5;
-}
-.ring-streak {
-  display: inline-flex; align-items: center; gap: 4px;
-  margin-top: 6px; font-size: 11px;
-  font-weight: var(--font-weight-label);
-  color: var(--accent);
-  background: var(--glass-top); border: 1px solid var(--glass-top-border);
-  padding: 3px 10px; border-radius: 20px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.80);
-}
-
-/* ===================================================
-   ICONOGRAFÍA MORFOLÓGICA
-   Iconos animados al tocarlos / interactuar
-   =================================================== */
-
-/* El icono del sol gira sutilmente */
-@keyframes sunSpin {
-  from { transform: rotate(0deg) scale(1); }
-  50%  { transform: rotate(15deg) scale(1.15); }
-  to   { transform: rotate(0deg) scale(1); }
-}
-/* La gota tiembla como agua real */
-@keyframes dropWobble {
-  0%,100% { transform: scaleX(1)   scaleY(1); }
-  20%     { transform: scaleX(0.88) scaleY(1.12); }
-  40%     { transform: scaleX(1.10) scaleY(0.92); }
-  60%     { transform: scaleX(0.94) scaleY(1.06); }
-  80%     { transform: scaleX(1.04) scaleY(0.98); }
-}
-/* La luna parpadea sutilmente */
-@keyframes moonGlow {
-  0%,100% { filter: drop-shadow(0 0 2px rgba(138,106,192,0.4)); transform: scale(1); }
-  50%     { filter: drop-shadow(0 0 10px rgba(138,106,192,0.9)); transform: scale(1.12); }
-}
-/* Estrella/constelación: pulsa */
-@keyframes starPulse {
-  0%,100% { transform: scale(1) rotate(0deg); opacity: 1; }
-  50%     { transform: scale(1.25) rotate(18deg); opacity: 0.7; }
-}
-/* Escudo SPF: vibra ligeramente indicando protección activa */
-@keyframes shieldPulse {
-  0%,100% { transform: scale(1); filter: drop-shadow(0 0 3px rgba(255,143,0,0.3)); }
-  50%     { transform: scale(1.08); filter: drop-shadow(0 0 10px rgba(255,143,0,0.7)); }
-}
-
-.step-number { display: inline-flex; align-items: center; justify-content: center; }
-.step-card:active .step-number,
-.step-card.icon-animate .step-number { display: inline-flex; }
-
-/* Clases aplicadas por JS según tipo de icono */
-.icon-sun-anim     { animation: sunSpin   0.6s var(--spring) both; }
-.icon-drop-anim    { animation: dropWobble 0.7s var(--spring) both; }
-.icon-moon-anim    { animation: moonGlow  0.8s ease-in-out both; }
-.icon-star-anim    { animation: starPulse 0.6s var(--bounce) both; }
-.icon-shield-anim  { animation: shieldPulse 0.9s ease-in-out both; }
-.icon-eye-anim     { animation: dropWobble 0.5s var(--spring) both; }
-
-/* Idle: el SPF escudo siempre pulsa levemente */
-.step-gold .step-number { animation: shieldPulse 3s ease-in-out infinite; }
-.step-gold .step-number:hover,
-.step-gold .step-number:active { animation: shieldPulse 0.5s ease-in-out 3; }
-
-/* ===================================================
-   TILT 3D — Perspectiva en cards al deslizar el dedo
-   JS aplica transform:rotateX/Y via CSS custom props
-   =================================================== */
-.step-card, .tip-card, .night-row {
-  /* Contexto de perspectiva para rotación 3D */
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-/* La tarjeta usa estas variables; JS las actualiza en tiempo real */
-.step-card {
-  transform:
-    perspective(600px)
-    rotateX(var(--tilt-x, 0deg))
-    rotateY(var(--tilt-y, 0deg))
-    translateY(var(--tilt-lift, 0px))
-    scale(var(--tilt-scale, 1));
-  transition: transform 0.38s var(--spring), box-shadow 0.28s var(--spring),
-              background 3s ease, border-color 3s ease, opacity 0.4s var(--spring);
-}
-.tip-card {
-  transform:
-    perspective(600px)
-    rotateX(var(--tilt-x, 0deg))
-    rotateY(var(--tilt-y, 0deg))
-    scale(var(--tilt-scale, 1));
-  transition: transform 0.38s var(--spring), background 3s ease;
-}
-/* Brillo especular que sigue al dedo */
-.tilt-glare {
-  position: absolute; inset: 0; border-radius: inherit;
-  pointer-events: none; z-index: 10;
+.ritual-card::after {
+  /* Destello de luz para Glass Tilt */
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
   background: radial-gradient(
-    circle 90px at var(--glare-x, 50%) var(--glare-y, 50%),
-    rgba(255,255,255,0.22) 0%,
-    rgba(255,255,255,0.05) 45%,
+    circle 120px at var(--tilt-x, 50%) var(--tilt-y, 30%),
+    rgba(255,255,255,0.12),
     transparent 70%
   );
-  opacity: var(--glare-opacity, 0);
-  transition: opacity 0.2s ease;
-  mix-blend-mode: screen;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-fast) ease;
 }
 
-/* ===================================================
-   TAB NAV
-   =================================================== */
-.tab-nav {
-  display: flex; margin: 0 16px 8px;
-  background: var(--glass-mid);
-  backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-glass),
-              inset 0 1px 0 rgba(255,255,255,0.70), inset 0 -1px 0 rgba(255,255,255,0.12),
-              inset 1px 0 0 rgba(255,255,255,0.35), inset -1px 0 0 rgba(255,255,255,0.15);
-  border: 1px solid var(--glass-mid-border);
-  overflow: hidden; position: sticky; top: 8px; z-index: 100;
-  transition: background 3s ease, border-color 3s ease;
-}
-.tab-btn {
-  flex: 1; border: none; background: none; padding: 13px 4px;
-  font-family: 'Inter', sans-serif; font-size: 11.5px;
-  font-weight: var(--font-weight-label);
-  font-variation-settings: 'wght' var(--font-weight-label);
-  letter-spacing: 0.2px; color: var(--text-muted); cursor: pointer;
-  transition: color 0.18s var(--snap), background 0.22s var(--spring), transform 0.15s var(--snap);
-  position: relative;
-}
-.tab-btn:active { transform: scale(0.94); }
-.tab-btn.active { color: var(--accent-dark); background: var(--glass-top); font-weight: var(--font-weight-title); font-variation-settings: 'wght' var(--font-weight-title); }
-[data-phase="night"] .tab-btn.active,
-[data-theme="night"] .tab-btn.active { background: rgba(140,110,200,0.15); }
-.tab-btn.active::after {
-  content: ''; position: absolute; bottom: 0; left: 20%; right: 20%;
-  height: 2px; background: var(--accent); border-radius: 2px;
-  transition: background 3s ease;
+.ritual-card:hover::after,
+.ritual-card.tilting::after {
+  opacity: 1;
 }
 
-/* ===================================================
-   TAB CONTENT — Liquid Transitions
-   =================================================== */
-.tab-content {
-  padding: 8px 16px 16px;
-  display: none; position: relative;
-}
-.tab-content.active {
-  display: block;
-  animation: tabLiquidIn 0.52s var(--liquid-in) both;
-  transform-origin: top center;
-}
-.tab-content.tab-leaving {
-  display: block !important; pointer-events: none;
-  animation: tabLiquidOut 0.28s var(--liquid-out) both;
-  position: absolute; inset: 0; transform-origin: top center; z-index: 0;
-}
-@keyframes tabLiquidIn {
-  0%   { opacity: 0; transform: translateY(28px) scale(0.97); filter: blur(3px); }
-  60%  { filter: blur(0px); }
-  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
-}
-@keyframes tabLiquidOut {
-  0%   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
-  100% { opacity: 0; transform: translateY(-16px) scale(0.96); filter: blur(4px); }
-}
-.tab-content.active > * { animation: cascadeIn 0.50s var(--liquid-in) both; }
-.tab-content.active > *:nth-child(1) { animation-delay: 0.06s; }
-.tab-content.active > *:nth-child(2) { animation-delay: 0.13s; }
-.tab-content.active > *:nth-child(3) { animation-delay: 0.19s; }
-.tab-content.active > *:nth-child(4) { animation-delay: 0.25s; }
-.tab-content.active > *:nth-child(5) { animation-delay: 0.31s; }
-.tab-content.active > *:nth-child(6) { animation-delay: 0.36s; }
-.tab-content.active > *:nth-child(7) { animation-delay: 0.40s; }
-.tab-content.active > *:nth-child(8) { animation-delay: 0.44s; }
-@keyframes cascadeIn {
-  from { opacity: 0; transform: translateY(18px) scale(0.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-.tab-wrapper { position: relative; overflow: hidden; min-height: 0; }
-
-/* ===================================================
-   SCROLL SPRING
-   =================================================== */
-.routine-list.at-bottom .step-card:last-child,
-.tips-list.at-bottom    .tip-card:last-child,
-.night-calendar.at-bottom .night-row:last-child {
-  transform: scaleY(var(--card-squeeze, 1)) scaleX(var(--card-squeeze-x, 1));
-  transform-origin: center bottom;
-  transition: transform 0.18s var(--spring-resist);
+/* Card completada */
+.ritual-card.completed {
+  opacity: 0.65;
 }
 
-/* ===================================================
-   DAY HERO CARD
-   =================================================== */
-.day-card {
-  background: var(--glass-mid);
-  backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
-  border-radius: var(--radius); padding: 20px 24px 16px;
-  color: var(--text); margin-bottom: 12px;
-  position: relative; overflow: hidden;
-  border: 1px solid transparent;
-  box-shadow: var(--shadow-glass), var(--shadow-card),
-              inset 0 1.5px 0 rgba(255,255,255,0.88), inset 0 -1px 0 rgba(255,255,255,0.14),
-              inset 1.5px 0 0 rgba(255,255,255,0.48), inset -1px 0 0 rgba(255,255,255,0.18);
-  transition: background 3s ease, border-color 3s ease, box-shadow 3s ease;
+.ritual-card.completed .card-step-label {
+  text-decoration: line-through;
+  opacity: 0.4;
 }
-.day-card::before {
-  content: ''; position: absolute; inset: 0;
-  background: var(--glass-base); border-radius: inherit; pointer-events: none; z-index: 0;
-}
-.day-card > * { position: relative; z-index: 1; }
-.day-card h2 {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 28px; font-weight: var(--font-weight-hero);
-  font-variation-settings: 'wght' var(--font-weight-hero); letter-spacing: -0.2px;
-}
-.day-subtitle { font-size: 13px; opacity: 0.75; margin-top: 6px; font-weight: var(--font-weight-body); font-variation-settings: 'wght' var(--font-weight-body); letter-spacing: 0.3px; }
-.day-badge {
-  display: inline-block; background: var(--glass-top);
-  border: 1px solid var(--glass-top-border);
-  box-shadow: 0 2px 12px rgba(255,255,255,0.35), inset 0 1px 0 rgba(255,255,255,0.95);
-  border-radius: 20px; padding: 4px 14px; font-size: 11px;
-  font-weight: var(--font-weight-title); font-variation-settings: 'wght' var(--font-weight-title);
-  letter-spacing: 1px; margin-bottom: 12px; text-transform: uppercase; backdrop-filter: blur(4px);
-}
-.card-glow-overlay {
-  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-  background: radial-gradient(circle 120px at 50% 50%, rgba(255,255,255,0.18), transparent 70%);
-  opacity: 0; transition: opacity 0.3s; z-index: 2;
-}
-.day-card:hover .card-glow-overlay { opacity: 1; }
 
-/* ===================================================
-   SECTION TITLES
-   =================================================== */
-.section-title {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 16px; font-weight: var(--font-weight-title);
-  font-variation-settings: 'wght' var(--font-weight-title);
-  color: var(--text); margin: 22px 0 12px; letter-spacing: 0.1px; transition: color 3s ease;
+/* Layout interno de la card */
+.card-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
 }
-.section-header { margin-bottom: 20px; }
-.section-header h2 {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 24px; font-weight: var(--font-weight-hero);
-  font-variation-settings: 'wght' var(--font-weight-hero); color: var(--text);
+
+.card-icon-wrap {
+  width: 48px; height: 48px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+  font-size: 1.4rem;
+  transition: transform var(--duration-fast) var(--ease-premium);
 }
-.section-header p { font-size: 13px; color: var(--text-muted); margin-top: 4px; letter-spacing: 0.3px; font-weight: var(--font-weight-muted); font-variation-settings: 'wght' var(--font-weight-muted); }
 
-/* ===================================================
-   STEP CARDS
-   =================================================== */
-.routine-list { display: flex; flex-direction: column; gap: 10px; }
-
-.step-card {
-  background: var(--glass-mid);
-  backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
-  border-radius: var(--radius); padding: 16px;
-  display: flex; align-items: flex-start; gap: 14px;
-  position: relative; overflow: hidden; cursor: pointer;
-  box-shadow: var(--shadow-card),
-              inset 0 1.5px 0 rgba(255,255,255,0.80), inset 0 -1px 0 rgba(255,255,255,0.10),
-              inset 1.5px 0 0 rgba(255,255,255,0.42), inset -1px 0 0 rgba(255,255,255,0.16);
-  border: 1px solid var(--glass-mid-border);
-  -webkit-tap-highlight-color: transparent;
+.ritual-card.completed .card-icon-wrap {
+  opacity: 0.5;
 }
-.step-card::before {
-  content: ''; position: absolute; inset: 0; border-radius: inherit;
-  background: var(--glass-base); pointer-events: none; z-index: 0; transition: background 3s ease;
+
+.card-text {
+  flex: 1;
+  min-width: 0;
 }
-.step-card > * { position: relative; z-index: 2; }
-.step-card:active, .step-card.completing { transform: scale(0.97) perspective(600px) !important; }
 
-.step-pink   { box-shadow: var(--shadow-pink),   inset 0 1.5px 0 rgba(255,255,255,0.80), inset 0 -1px 0 rgba(255,255,255,0.10), inset 1.5px 0 0 rgba(255,255,255,0.42), inset -1px 0 0 rgba(255,255,255,0.16); }
-.step-purple { box-shadow: var(--shadow-purple), inset 0 1.5px 0 rgba(255,255,255,0.80), inset 0 -1px 0 rgba(255,255,255,0.10), inset 1.5px 0 0 rgba(255,255,255,0.42), inset -1px 0 0 rgba(255,255,255,0.16); }
-.step-gold   { box-shadow: var(--shadow-gold),   inset 0 1.5px 0 rgba(255,255,255,0.80), inset 0 -1px 0 rgba(255,255,255,0.10), inset 1.5px 0 0 rgba(255,255,255,0.42), inset -1px 0 0 rgba(255,255,255,0.16); }
-.step-blue   { box-shadow: var(--shadow-blue),   inset 0 1.5px 0 rgba(255,255,255,0.80), inset 0 -1px 0 rgba(255,255,255,0.10), inset 1.5px 0 0 rgba(255,255,255,0.42), inset -1px 0 0 rgba(255,255,255,0.16); }
-.step-green  { box-shadow: var(--shadow-green),  inset 0 1.5px 0 rgba(255,255,255,0.80), inset 0 -1px 0 rgba(255,255,255,0.10), inset 1.5px 0 0 rgba(255,255,255,0.42), inset -1px 0 0 rgba(255,255,255,0.16); }
-[data-phase="day"] .step-gold { border-color: rgba(220,180,60,0.55); box-shadow: var(--shadow-gold), inset 0 1.5px 0 rgba(255,255,255,0.80), inset 0 -1px 0 rgba(255,255,255,0.10), 0 0 24px rgba(220,180,60,0.18); }
-
-/* COMPLETED */
-.step-card.completed {
-  background: var(--done-bg); border-color: var(--done-border);
-  box-shadow: 0 2px 12px rgba(46,125,50,0.10), inset 0 0 0 1px rgba(46,125,50,0.15);
-  opacity: 0.72; animation: completedIn 0.45s var(--spring) both;
+/* Jerarquía de texto premium */
+.card-step-number {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.3;
+  font-family: var(--font-sans);
+  margin-bottom: 2px;
 }
-.step-card.completed::after { display: none; }
-.step-card.completed .step-product { text-decoration: line-through; color: var(--done-text); }
-.step-card.completed .step-label, .step-card.completed .step-note { color: var(--done-text); }
-.step-check {
-  position: absolute; top: 10px; right: 12px;
-  width: 24px; height: 24px; border-radius: 50%;
-  background: var(--done-check-bg); color: white;
-  font-size: 13px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  animation: fadeCheck 0.35s var(--bounce) both;
-  box-shadow: 0 2px 8px rgba(46,125,50,0.3); z-index: 3;
+
+.card-step-label {
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all var(--duration-fast) ease;
 }
-@keyframes completedIn { from { opacity: 1; transform: scale(1.01); } to { opacity: 0.72; transform: scale(1); } }
-@keyframes fadeCheck { from { opacity: 0; transform: scale(0.3) rotate(-20deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
 
-.step-number {
-  width: 38px; height: 38px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 17px; flex-shrink: 0;
-  font-weight: var(--font-weight-title); font-variation-settings: 'wght' var(--font-weight-title);
-  backdrop-filter: blur(4px); filter: drop-shadow(0 4px 12px currentColor);
-  cursor: pointer;
+.card-step-note {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-style: italic;
+  color: var(--text-primary);
+  opacity: 0.5;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.step-info { flex: 1; }
-.step-label { font-size: 10.5px; font-weight: var(--font-weight-label); font-variation-settings: 'wght' var(--font-weight-label); text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 3px; }
-.step-product { font-size: 15px; font-weight: var(--font-weight-title); font-variation-settings: 'wght' var(--font-weight-title); color: var(--text); margin-bottom: 4px; letter-spacing: -0.1px; transition: color 0.3s; }
-.step-note { font-size: 12px; color: var(--text-muted); line-height: 1.5; font-weight: var(--font-weight-body); font-variation-settings: 'wght' var(--font-weight-body); }
 
-.step-pink   .step-number { background: rgba(244,143,177,0.25); color: #C2607A; filter: drop-shadow(0 6px 16px rgba(194,96,122,0.35)); }
-.step-purple .step-number { background: rgba(156,39,176,0.15);  color: #9C27B0; filter: drop-shadow(0 6px 16px rgba(156,39,176,0.30)); }
-.step-gold   .step-number { background: rgba(255,143,0,0.18);   color: #C07800; filter: drop-shadow(0 6px 16px rgba(192,120,0,0.32)); }
-.step-blue   .step-number { background: rgba(21,101,192,0.15);  color: #1565C0; filter: drop-shadow(0 6px 16px rgba(21,101,192,0.28)); }
-.step-green  .step-number { background: rgba(46,125,50,0.15);   color: #2E7D32; filter: drop-shadow(0 6px 16px rgba(46,125,50,0.28)); }
-[data-phase="night"] .step-pink  .step-number, [data-theme="night"] .step-pink  .step-number { background: rgba(180,80,120,0.3);  color: #E2A0B8; filter: drop-shadow(0 6px 20px rgba(226,160,184,0.45)); }
-[data-phase="night"] .step-purple .step-number,[data-theme="night"] .step-purple .step-number { background: rgba(130,80,180,0.3);  color: #C090E0; filter: drop-shadow(0 6px 20px rgba(192,144,224,0.45)); }
-[data-phase="night"] .step-gold  .step-number, [data-theme="night"] .step-gold  .step-number { background: rgba(200,140,40,0.3);  color: #E0C080; filter: drop-shadow(0 6px 20px rgba(224,192,128,0.42)); }
-[data-phase="night"] .step-blue  .step-number, [data-theme="night"] .step-blue  .step-number { background: rgba(60,100,200,0.3);  color: #80B0E8; filter: drop-shadow(0 6px 20px rgba(128,176,232,0.42)); }
-[data-phase="night"] .step-green .step-number, [data-theme="night"] .step-green .step-number { background: rgba(50,140,80,0.3);   color: #80C890; filter: drop-shadow(0 6px 20px rgba(128,200,144,0.40)); }
-
-/* ===================================================
-   SEASON TOGGLE
-   =================================================== */
-.season-toggle { display: flex; align-items: center; gap: 10px; margin: 14px 0; font-size: 13px; font-weight: 500; color: var(--text-muted); }
-.toggle-group {
-  display: flex; background: var(--glass-base);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--glass-mid-border); border-radius: 20px; padding: 3px; gap: 2px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.50); transition: background 3s ease;
+/* Check icon — Iconografía reactiva */
+.card-check {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--duration-fast) var(--ease-premium);
+  background: transparent;
 }
-[data-phase="night"] .toggle-group, [data-theme="night"] .toggle-group { background: rgba(40,30,70,0.5); }
-.toggle-btn { border: none; background: none; padding: 6px 14px; border-radius: 17px; font-size: 12px; font-weight: var(--font-weight-body); font-variation-settings: 'wght' var(--font-weight-body); cursor: pointer; color: var(--text-muted); transition: all 0.28s var(--spring); }
-.toggle-btn.active { background: var(--glass-top); color: var(--accent-dark); font-weight: var(--font-weight-title); font-variation-settings: 'wght' var(--font-weight-title); box-shadow: 0 2px 12px rgba(180,130,150,0.18), inset 0 1px 0 var(--glass-top-border); border: 1px solid var(--glass-top-border); }
-[data-phase="night"] .toggle-btn.active, [data-theme="night"] .toggle-btn.active { background: rgba(100,80,160,0.50); color: #C090E0; }
 
-/* ===================================================
-   ALERT BOX
-   =================================================== */
-.alert-box {
-  background: rgba(255,248,225,0.80); backdrop-filter: blur(8px);
-  border: 1.5px solid rgba(255,200,80,0.40); border-radius: var(--radius-sm);
-  padding: 14px 16px; margin-top: 16px; font-size: 13px; line-height: 1.6; display: none;
-  box-shadow: 0 4px 40px rgba(255,200,80,0.14), inset 0 1px 0 rgba(255,255,255,0.70);
+.ritual-card.completed .card-check {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  opacity: 0.7;
 }
-.alert-box.show { display: block; animation: cascadeIn 0.4s var(--liquid-in) both; }
-.alert-box strong { color: #B07800; display: block; margin-bottom: 4px; font-size: 14px; font-weight: var(--font-weight-title); font-variation-settings: 'wght' var(--font-weight-title); }
-[data-phase="night"] .alert-box, [data-theme="night"] .alert-box { background: rgba(60,45,10,0.6); border-color: rgba(200,160,40,0.3); }
-[data-phase="night"] .alert-box strong, [data-theme="night"] .alert-box strong { color: #D4A830; }
 
-/* ===================================================
-   NIGHT CALENDAR
-   =================================================== */
-.night-calendar { display: flex; flex-direction: column; gap: 12px; }
-.night-row {
-  background: var(--glass-mid);
-  backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
-  border: 1px solid var(--glass-mid-border); border-radius: var(--radius); padding: 16px;
-  box-shadow: var(--shadow-card),
-              inset 0 1.5px 0 rgba(255,255,255,0.72), inset 0 -1px 0 rgba(255,255,255,0.12), inset 1.5px 0 0 rgba(255,255,255,0.38);
-  transition: background 3s ease, border-color 3s ease, transform 0.38s var(--spring);
-  transform: perspective(600px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg)) scale(var(--tilt-scale,1));
+.card-check svg {
+  width: 14px; height: 14px;
+  opacity: 0;
+  stroke: #fff;
+  transition: opacity var(--duration-fast) ease;
 }
-.night-row.olay-night { border-left: 3px solid rgba(200,140,40,0.6); box-shadow: var(--shadow-gold), inset 0 1.5px 0 rgba(255,255,255,0.72), inset 1.5px 0 0 rgba(255,255,255,0.38); }
-.night-row.nia-night  { border-left: 3px solid rgba(46,125,50,0.6);  box-shadow: var(--shadow-green), inset 0 1.5px 0 rgba(255,255,255,0.72), inset 1.5px 0 0 rgba(255,255,255,0.38); }
-.night-day { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: var(--font-weight-title); font-variation-settings: 'wght' var(--font-weight-title); color: var(--text); margin-bottom: 10px; }
-.night-day span { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 10.5px; font-family: 'Inter', sans-serif; font-weight: 700; margin-left: 6px; }
-.olay-night .night-day span { background: rgba(255,152,0,0.12); color: #B06000; }
-.nia-night  .night-day span { background: rgba(46,125,50,0.12); color: #2e7d32; }
-.night-steps { display: flex; flex-direction: column; gap: 6px; }
-.night-step { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 6px 0; border-bottom: 1px solid rgba(180,140,160,0.12); }
-.night-step:last-child { border-bottom: none; }
-.night-step-label { color: var(--text-muted); font-size: 11px; letter-spacing: 0.3px; }
-.night-step-product { font-weight: var(--font-weight-label); font-variation-settings: 'wght' var(--font-weight-label); color: var(--text); text-align: right; max-width: 60%; }
 
-/* ===================================================
-   TIPS
-   =================================================== */
-.tips-list { display: flex; flex-direction: column; gap: 12px; }
-.tip-card {
-  background: var(--glass-mid);
-  backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
-  border: 1px solid var(--glass-mid-border); border-radius: var(--radius); padding: 18px;
-  box-shadow: var(--shadow-card),
-              inset 0 1.5px 0 rgba(255,255,255,0.72), inset 0 -1px 0 rgba(255,255,255,0.10), inset 1.5px 0 0 rgba(255,255,255,0.38);
-  display: flex; gap: 14px; align-items: flex-start;
-  transition: transform 0.38s var(--spring), background 3s ease;
+.ritual-card.completed .card-check svg {
+  opacity: 1;
 }
-.tip-card:active { transform: scale(0.98) perspective(600px) !important; }
-.tip-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; filter: drop-shadow(0 8px 20px currentColor); cursor: pointer; }
-.tip-content h3 { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: var(--font-weight-title); font-variation-settings: 'wght' var(--font-weight-title); color: var(--text); margin-bottom: 5px; }
-.tip-content p { font-size: 13px; color: var(--text-muted); line-height: 1.5; font-weight: var(--font-weight-body); font-variation-settings: 'wght' var(--font-weight-body); }
 
-/* ===================================================
-   FLOATING ACTION DOCK — Squircle + Massive Blur
-   No pegado al borde: flota sobre el contenido con
-   sombra profunda y border-radius infinito (squircle).
-   =================================================== */
+
+/* —————————————————————————
+   9. PROGRESS RING
+————————————————————————— */
+.progress-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-lg) 0 var(--space-md);
+}
+
+.progress-ring {
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));
+}
+
+.progress-ring__bg {
+  fill: none;
+  stroke: rgba(0,0,0,0.06);
+  stroke-width: 4;
+}
+
+.progress-ring__fill {
+  fill: none;
+  stroke: var(--text-primary);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 188.5;
+  stroke-dashoffset: 188.5;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dashoffset var(--duration-slow) var(--ease-premium),
+              stroke var(--duration-slow) ease;
+  opacity: 0.7;
+}
+
+.progress-label {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.5;
+  letter-spacing: 0.08em;
+}
+
+
+/* —————————————————————————
+   10. FLOATING DOCK (Z-30)
+————————————————————————— */
 .floating-dock {
   position: fixed;
-  /* Flota: no llega hasta el borde del safe area */
-  bottom: calc(var(--safe-bottom) + 18px);
+  bottom: calc(env(safe-area-inset-bottom, 12px) + 12px);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 200;
-
-  /* Squircle: radio máximo = píldora */
-  border-radius: 32px;
-  padding: 10px 20px;
-
-  /* Glass ultra-pesado con blur masivo */
-  background: var(--glass-mid);
-  backdrop-filter: blur(40px) saturate(1.8);
-  -webkit-backdrop-filter: blur(40px) saturate(1.8);
-  border: 1px solid var(--glass-mid-border);
-
-  /* Sombra profunda flotante */
-  box-shadow:
-    0 24px 60px rgba(0,0,0,0.18),
-    0 8px 24px rgba(196,138,150,0.20),
-    inset 0 1.5px 0 rgba(255,255,255,0.85),
-    inset 0 -1px 0 rgba(255,255,255,0.18),
-    inset 1px 0 0 rgba(255,255,255,0.50),
-    inset -1px 0 0 rgba(255,255,255,0.22);
-
+  z-index: var(--z-dock);
   display: flex;
   align-items: center;
   gap: 4px;
-
-  /* Animación de entrada */
-  animation: dockSlideIn 0.7s var(--spring) both;
-  animation-delay: 0.3s;
-
-  /* Transición de temas */
-  transition: background 3s ease, border-color 3s ease, box-shadow 3s ease;
-}
-
-[data-phase="night"] .floating-dock,
-[data-theme="night"] .floating-dock {
-  background: rgba(20,16,44,0.80);
+  padding: 10px 16px;
+  border-radius: var(--radius-dock);
+  /* Z-30 Jewelry glass */
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 0.5px solid rgba(255,255,255,0.55);
   box-shadow:
-    0 24px 60px rgba(0,0,0,0.44),
-    0 8px 24px rgba(80,60,160,0.28),
-    inset 0 1.5px 0 rgba(180,150,240,0.30),
-    inset 0 -1px 0 rgba(140,110,200,0.12);
+    0 8px 40px rgba(0,0,0,0.12),
+    inset 0 0.5px 0 rgba(255,255,255,0.8);
+  transition: background var(--duration-slow) var(--ease-premium);
 }
 
-@keyframes dockSlideIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(28px) scale(0.90); filter: blur(4px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); filter: blur(0px); }
+[data-phase="night"] .floating-dock {
+  background: rgba(40, 25, 90, 0.45);
+  border-color: rgba(150, 120, 255, 0.35);
 }
 
-/* Botones del dock */
 .dock-btn {
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 3px; padding: 8px 14px;
-  border: none; background: none; cursor: pointer;
-  border-radius: 22px;
-  min-width: 56px;
-  color: var(--text-muted);
-  font-family: 'Inter', sans-serif;
-  font-size: 10px; font-weight: var(--font-weight-label);
-  font-variation-settings: 'wght' var(--font-weight-label);
-  letter-spacing: 0.3px;
-  transition: color 0.2s var(--snap), background 0.22s var(--spring), transform 0.18s var(--snap);
-  -webkit-tap-highlight-color: transparent;
+  width: 46px; height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 16px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-primary);
+  opacity: 0.4;
+  transition: all var(--duration-fast) var(--ease-premium);
   position: relative;
 }
-.dock-btn .dock-icon {
-  font-size: 20px; line-height: 1;
-  transition: transform 0.28s var(--bounce);
-  display: block;
-}
-.dock-btn:active { transform: scale(0.88); }
-.dock-btn:active .dock-icon { transform: scale(0.85); }
+
 .dock-btn.active {
-  color: var(--accent-dark);
-  background: var(--glass-top);
-  box-shadow: inset 0 1px 0 var(--glass-top-border),
-              0 2px 12px rgba(196,138,150,0.18);
-}
-[data-phase="night"] .dock-btn.active,
-[data-theme="night"] .dock-btn.active { background: rgba(100,80,160,0.30); color: #C090E0; }
-
-/* Indicador activo — punto debajo del icono */
-.dock-btn.active::after {
-  content: '';
-  position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
-  width: 4px; height: 4px; border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 6px var(--accent);
-  animation: dotPop 0.4s var(--bounce) both;
-}
-@keyframes dotPop {
-  from { opacity: 0; transform: translateX(-50%) scale(0); }
-  to   { opacity: 1; transform: translateX(-50%) scale(1); }
+  opacity: 1;
+  background: rgba(255,255,255,0.3);
 }
 
-/* Separador visual entre grupos de botones */
-.dock-sep {
-  width: 1px; height: 32px;
-  background: var(--glass-mid-border);
-  opacity: 0.6; border-radius: 1px; flex-shrink: 0;
+.dock-btn:active {
+  transform: scale(0.88);
 }
 
-/* ===================================================
-   INSTALL BANNER
-   =================================================== */
-#installBanner {
-  display: none; position: fixed;
-  bottom: calc(var(--safe-bottom) + 96px); left: 16px; right: 16px;
-  background: var(--glass-mid); backdrop-filter: blur(var(--blur));
-  border: 1px solid var(--glass-mid-border); color: var(--text);
-  border-radius: var(--radius); padding: 16px 20px;
-  box-shadow: var(--shadow-glass), inset 0 1.5px 0 rgba(255,255,255,0.72);
-  z-index: 999; align-items: center; gap: 12px; font-size: 13px;
-}
-#installBanner.hidden { display: none !important; }
-#installBanner .install-text { flex: 1; }
-#installBanner .install-text strong { display: block; font-size: 14px; font-family: 'Playfair Display', serif; font-weight: var(--font-weight-title); font-variation-settings: 'wght' var(--font-weight-title); }
-#installBtn {
-  background: var(--glass-top); color: var(--accent-dark);
-  border: 1px solid var(--glass-top-border);
-  box-shadow: 0 2px 16px rgba(180,130,150,0.22), inset 0 1px 0 rgba(255,255,255,0.95);
-  border-radius: 20px; padding: 8px 16px;
-  font-weight: var(--font-weight-title); font-variation-settings: 'wght' var(--font-weight-title);
-  font-size: 13px; cursor: pointer; white-space: nowrap;
-  transition: transform 0.2s var(--spring), box-shadow 0.2s;
-}
-#installBtn:active { transform: scale(0.95); }
-#closeBanner { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 0 4px; }
 
-/* ===================================================
-   HAPTIC POP
-   =================================================== */
-@keyframes hapticPop {
-  0% { transform: scale(1); } 20% { transform: scale(0.95); }
-  55% { transform: scale(1.04); } 80% { transform: scale(0.99); } 100% { transform: scale(1); }
+/* —————————————————————————
+   11. PHASE TRANSITIONS
+————————————————————————— */
+[data-phase="night"] body,
+[data-phase="night"] .header-title,
+[data-phase="night"] .card-step-label,
+[data-phase="night"] .card-step-note {
+  color: hsl(240, 30%, 92%);
 }
-.haptic-pop { animation: hapticPop 0.42s var(--spring) both !important; }
 
-/* Eclipse */
-[data-theme="night"] .aura-bg, [data-phase="night"] .aura-bg { transform: rotate(180deg); transition: transform 1.6s var(--spring), background 4s ease; }
-[data-theme="day"] .aura-bg, [data-phase="dawn"] .aura-bg, [data-phase="day"] .aura-bg, [data-phase="dusk"] .aura-bg { transform: rotate(0deg); transition: transform 1.6s var(--spring), background 4s ease; }
+[data-phase="night"] .ritual-card {
+  background: rgba(30, 20, 70, 0.35);
+}
 
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  #app { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+[data-phase="dawn"] .ritual-card {
+  background: rgba(255, 200, 210, 0.22);
+}
+
+[data-phase="golden"] .ritual-card {
+  background: rgba(255, 160, 60, 0.18);
+}
+
+[data-phase="day"] .ritual-card {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+
+/* —————————————————————————
+   12. ROUTINE CONTAINER
+————————————————————————— */
+.routine-container {
+  padding: 0 0 var(--space-xl);
+}
+
+
+/* —————————————————————————
+   13. RESPONSIVE
+————————————————————————— */
+@media (min-width: 480px) {
+  .app-main {
+    padding-left: var(--space-md);
+    padding-right: var(--space-md);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
