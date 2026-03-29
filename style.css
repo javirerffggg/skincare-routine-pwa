@@ -1,171 +1,123 @@
 /* =============================================================
-   SKINCARE RITUAL PWA — Elite CSS Architecture v2.0
+   SKINCARE RITUAL PWA — Elite CSS Architecture v2.1
    Arquitectura Éclat | Puerto Real, Cádiz
    ============================================================= */
 
-/* —————————————————————————
-   1. TOKENS & CUSTOM PROPERTIES
-————————————————————————— */
+/* —— 1. TOKENS —————————————————— */
 :root {
-  /* Solar Engine — se sobreescriben en JS */
   --hue-base: 210;
   --hue-secondary: 180;
   --lightness-base: 94;
   --saturation-base: 40;
-  --bg-opacity: 0.1;
-  --mesh-color-1: rgba(220, 240, 255, 0.7);
-  --mesh-color-2: rgba(200, 230, 220, 0.5);
-  --mesh-color-3: rgba(240, 248, 255, 0.6);
-  --card-tint: rgba(255, 255, 255, 0.22);
-  --text-primary: hsl(210, 40%, 15%);
-  --pill-bg: rgba(200, 235, 255, 0.4);
+  --mesh-color-1: rgba(220,240,255,0.7);
+  --mesh-color-2: rgba(200,230,220,0.5);
+  --mesh-color-3: rgba(240,248,255,0.6);
+  --text-primary: hsl(210,40%,15%);
+  --pill-bg: rgba(200,235,255,0.4);
   --pill-text: #1a4a6b;
 
-  /* Spacing fluido — Squircle Canvas */
-  --space-xs:  clamp(0.25rem, 1vw,  0.5rem);
-  --space-sm:  clamp(0.5rem,  1.5vw, 0.75rem);
-  --space-md:  clamp(1rem,    3vw,  1.5rem);
-  --space-lg:  clamp(1.5rem,  4vw,  2.5rem);
-  --space-xl:  clamp(2rem,    5vw,  4rem);
+  --space-xs:  clamp(0.25rem,1vw,0.5rem);
+  --space-sm:  clamp(0.5rem,1.5vw,0.75rem);
+  --space-md:  clamp(1rem,3vw,1.5rem);
+  --space-lg:  clamp(1.5rem,4vw,2.5rem);
+  --space-xl:  clamp(2rem,5vw,4rem);
 
-  /* Typography */
-  --font-serif:   'Playfair Display', Georgia, serif;
-  --font-sans:    'Inter', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans:  'Inter', system-ui, sans-serif;
 
-  /* Glass material */
-  --glass-bg:         rgba(255, 255, 255, 0.35);
-  --glass-border:     rgba(255, 255, 255, 0.4);
-  --glass-blur:       20px;
-  --glass-shadow:     0 8px 50px rgba(0,0,0,0.05), 0 2px 12px rgba(0,0,0,0.04);
-  --glass-rim-light:  inset 0 0.5px 0 rgba(255,255,255,0.85);
+  --glass-bg:        rgba(255,255,255,0.35);
+  --glass-border:    rgba(255,255,255,0.4);
+  --glass-blur:      20px;
+  --glass-shadow:    0 8px 50px rgba(0,0,0,0.05), 0 2px 12px rgba(0,0,0,0.04);
+  --glass-rim-light: inset 0 0.5px 0 rgba(255,255,255,0.85);
 
-  /* Z-index layers */
   --z-core:       0;
   --z-atmosphere: 10;
   --z-main:       20;
   --z-dock:       30;
 
-  /* Motion */
-  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-premium:    cubic-bezier(0.22,1,0.36,1);
   --duration-fast:   180ms;
   --duration-normal: 420ms;
   --duration-slow:   700ms;
 
-  /* Border radius squircle approx */
-  --radius-card:  22px;
-  --radius-pill:  50px;
-  --radius-dock:  28px;
+  --radius-card: 22px;
+  --radius-pill: 50px;
+  --radius-dock: 28px;
+
+  /* Scroll spring */
+  --scroll-stretch: 0;
+
+  /* Step colors */
+  --c-blue:   #EAF4FF;
+  --c-purple: #F3EEFF;
+  --c-pink:   #FFECF4;
+  --c-gold:   #FFF8E6;
+  --c-green:  #EAFFF2;
 }
 
-/* Fase Amanecer */
-[data-phase="dawn"] {
-  --glass-bg: rgba(255, 210, 220, 0.28);
-  --glass-border: rgba(255, 200, 215, 0.45);
-}
-/* Fase Noche */
-[data-phase="night"] {
-  --glass-bg: rgba(60, 40, 120, 0.30);
-  --glass-border: rgba(160, 130, 255, 0.3);
-  --glass-rim-light: inset 0 0.5px 0 rgba(180,150,255,0.6);
-}
-/* Fase Golden */
-[data-phase="golden"] {
-  --glass-bg: rgba(255, 180, 80, 0.22);
-  --glass-border: rgba(255, 160, 60, 0.40);
-  --glass-rim-light: inset 0 0.5px 0 rgba(255, 220, 150, 0.8);
-}
+[data-phase="dawn"]   { --glass-bg: rgba(255,210,220,0.28); --glass-border: rgba(255,200,215,0.45); --text-primary: hsl(320,40%,20%); }
+[data-phase="night"]  { --glass-bg: rgba(60,40,120,0.30);  --glass-border: rgba(160,130,255,0.3); --glass-rim-light: inset 0 0.5px 0 rgba(180,150,255,0.6); --text-primary: hsl(240,30%,92%); }
+[data-phase="golden"] { --glass-bg: rgba(255,180,80,0.22); --glass-border: rgba(255,160,60,0.40); --glass-rim-light: inset 0 0.5px 0 rgba(255,220,150,0.8); --text-primary: hsl(25,60%,15%); }
+
+[data-theme="night"]  { --text-primary: hsl(240,30%,92%); }
 
 
-/* —————————————————————————
-   2. RESET & BASE
-————————————————————————— */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0; padding: 0;
-}
+/* —— 2. RESET —————————————————— */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
 
-html {
-  font-size: 16px;
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-}
+html { font-size:16px; -webkit-text-size-adjust:100%; }
 
 body.app-body {
   font-family: var(--font-sans);
   color: var(--text-primary);
   min-height: 100dvh;
   overflow-x: hidden;
-  position: relative;
-  transition: color var(--duration-slow) var(--ease-premium);
-  padding:
-    env(safe-area-inset-top, 0)
-    1.5rem
-    env(safe-area-inset-bottom, 0);
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 90px);
+  background: hsl(var(--hue-base), calc(var(--saturation-base) * 1%), calc(var(--lightness-base) * 1%));
+  transition: color var(--duration-slow) var(--ease-premium),
+              background var(--duration-slow) var(--ease-premium);
 }
 
 
-/* —————————————————————————
-   3. Z-STACK LAYERS
-————————————————————————— */
-
-/* Z-0: Core — Mesh Gradient */
-.layer-core {
+/* —— 3. FONDO CIRCADIANO (Orbes) ——————— */
+.aura-bg {
   position: fixed;
   inset: 0;
-  z-index: var(--z-core);
+  z-index: 0;
+  transition: background 1.5s var(--ease-premium);
+}
+
+.orb-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
   overflow: hidden;
 }
 
-.mesh-gradient {
-  width: 100%; height: 100%;
-  background:
-    radial-gradient(ellipse 80% 60% at 20% 20%, var(--mesh-color-1), transparent 60%),
-    radial-gradient(ellipse 60% 80% at 80% 70%, var(--mesh-color-2), transparent 60%),
-    radial-gradient(ellipse 50% 50% at 50% 50%, var(--mesh-color-3), transparent 70%),
-    hsl(var(--hue-base), calc(var(--saturation-base) * 1%), calc(var(--lightness-base) * 1%));
-  transition:
-    background var(--duration-slow) var(--ease-premium),
-    opacity var(--duration-slow) var(--ease-premium);
-  animation: meshDrift 20s ease-in-out infinite alternate;
+.orb {
+  position: absolute;
+  width: 360px; height: 360px;
+  border-radius: 50%;
+  filter: blur(80px);
+  transition: background 1.5s ease, top 1.5s ease, left 1.5s ease, right 1.5s ease;
+  will-change: transform;
 }
 
-@keyframes meshDrift {
-  0%   { transform: scale(1) translate(0, 0); }
-  33%  { transform: scale(1.04) translate(-1%, 1%); }
-  66%  { transform: scale(1.02) translate(1%, -0.5%); }
-  100% { transform: scale(1.05) translate(-0.5%, 0.5%); }
-}
-
-/* Z-10: Atmosphere — Grain + Particles */
-.layer-atmosphere {
+.grain-canvas {
   position: fixed;
   inset: 0;
-  z-index: var(--z-atmosphere);
+  z-index: 2;
   pointer-events: none;
-}
-
-.grain-overlay {
-  position: absolute;
-  inset: 0;
-  width: 100%; height: 100%;
-  opacity: 0.02; /* Grain cinematográfico al 2% */
+  opacity: 0.025;
   mix-blend-mode: overlay;
-}
-
-.particles-layer {
-  position: absolute;
-  inset: 0;
   width: 100%; height: 100%;
-  opacity: 0.4;
 }
 
 
-/* —————————————————————————
-   4. PREMIUM GLASS MIXIN
-————————————————————————— */
+/* —— 4. PREMIUM GLASS ———————————— */
 .premium-glass {
-  background:     var(--glass-bg);
+  background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur)) saturate(180%);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
   border: 1px solid var(--glass-border);
@@ -177,131 +129,169 @@ body.app-body {
 }
 
 
-/* —————————————————————————
-   5. APP MAIN (Z-20)
-————————————————————————— */
-.app-main {
+/* —— 5. APP WRAPPER ————————————— */
+.app-wrapper {
   position: relative;
   z-index: var(--z-main);
   max-width: 430px;
   margin: 0 auto;
-  padding-top: var(--space-md);
+  padding: env(safe-area-inset-top,16px) var(--space-md) calc(env(safe-area-inset-bottom,0px) + 24px);
+  /* Scroll spring effect */
+  transform: translateY(calc(var(--scroll-stretch) * 1px));
+}
+
+.app-wrapper.spring-release {
+  transition: transform 0.6s var(--ease-premium);
 }
 
 
-/* —————————————————————————
-   6. HEADER ÉCLAT
-————————————————————————— */
+/* —— 6. HEADER ÉCLAT ———————————— */
 .header-eclat {
-  padding: var(--space-md) 0 var(--space-sm);
+  padding: var(--space-sm) 0 var(--space-md);
 }
 
-.header-inner {
+.header-top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.header-date {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  opacity: 0.5;
+  margin-bottom: 4px;
 }
 
 .header-title {
   font-family: var(--font-serif);
   font-weight: 700;
   font-style: italic;
-  font-size: clamp(2rem, 8vw, 2.8rem);
+  font-size: clamp(2rem,8vw,2.8rem);
   line-height: 1.1;
   color: var(--text-primary);
   letter-spacing: -0.02em;
   transition: color var(--duration-slow) var(--ease-premium);
 }
 
-.header-title em {
-  font-style: italic;
-  opacity: 0.75;
+.header-title em { opacity: 0.75; }
+
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-xs);
 }
 
-.header-time {
+.circadian-label {
   font-family: var(--font-sans);
-  font-weight: 400;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.4em;
-  color: var(--text-primary);
+  font-size: 0.72rem;
+  font-weight: 500;
   opacity: 0.55;
-  display: block;
-  margin-top: var(--space-xs);
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-xs);
+  transition: opacity var(--duration-slow) ease;
 }
 
 /* Phase Pill */
 .phase-pill {
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-xs) var(--space-sm);
+  gap: 6px;
+  padding: 6px 12px;
   border-radius: var(--radius-pill);
   background: var(--pill-bg);
-  flex-shrink: 0;
-  margin-top: 4px;
-  min-width: 110px;
 }
+.phase-pill__icon { font-size: 1rem; line-height: 1; }
+.phase-pill__info { display: flex; flex-direction: column; gap: 1px; }
+.phase-pill__label { font-size: 0.65rem; font-weight: 600; color: var(--pill-text); text-transform: uppercase; letter-spacing: 0.08em; }
+.phase-pill__solar { font-size: 0.58rem; color: var(--pill-text); opacity: 0.65; }
 
-.phase-pill__icon {
-  font-size: 1.1rem;
-  line-height: 1;
-}
-
-.phase-pill__info {
+/* Theme button */
+.theme-btn {
+  width: 36px; height: 36px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
-  gap: 1px;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
 }
 
-.phase-pill__label {
-  font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 0.7rem;
-  color: var(--pill-text);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.phase-pill__solar {
-  font-family: var(--font-sans);
-  font-weight: 400;
-  font-size: 0.6rem;
-  color: var(--pill-text);
-  opacity: 0.7;
-  letter-spacing: 0.04em;
-}
-
-
-/* —————————————————————————
-   7. TABS RUTINA
-————————————————————————— */
-.routine-tabs {
-  display: flex;
-  gap: var(--space-xs);
+/* Day card */
+.day-card {
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  position: relative;
+  overflow: hidden;
   margin-bottom: var(--space-md);
+}
+
+.card-glow-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  transition: background 0.1s ease;
+}
+
+.day-card-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  position: relative;
+  z-index: 1;
+}
+
+.day-badge {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  opacity: 0.5;
+  background: rgba(0,0,0,0.06);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.day-title {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--text-primary);
+}
+
+
+/* —— 7. TABS NAV ———————————————— */
+.tabs-nav {
+  display: flex;
+  gap: 4px;
   padding: 4px;
   border-radius: var(--radius-card);
-  background: rgba(0,0,0,0.04);
+  background: rgba(0,0,0,0.05);
+  margin-bottom: var(--space-md);
 }
 
 .tab-btn {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px var(--space-sm);
+  padding: 9px 6px;
   border: none;
   border-radius: calc(var(--radius-card) - 4px);
   font-family: var(--font-sans);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   background: transparent;
   color: var(--text-primary);
-  opacity: 0.55;
+  opacity: 0.5;
   transition: all var(--duration-fast) var(--ease-premium);
 }
 
@@ -314,323 +304,354 @@ body.app-body {
   -webkit-backdrop-filter: blur(12px);
 }
 
-.tab-icon {
-  font-size: 1rem;
+/* Tab content transitions */
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: tabLiquidIn var(--duration-normal) var(--ease-premium) both; }
+.tab-content.tab-leaving { animation: tabLiquidOut 280ms var(--ease-premium) both; }
+
+@keyframes tabLiquidIn  { from { opacity:0; transform:translateY(12px) scale(0.98); } to { opacity:1; transform:none; } }
+@keyframes tabLiquidOut { from { opacity:1; transform:none; } to { opacity:0; transform:translateY(-8px) scale(0.98); } }
+
+.tab-content > * + * { margin-top: var(--space-md); }
+
+
+/* —— 8. SECTION BLOCKS ———————————— */
+.section-block {
+  margin-bottom: var(--space-lg);
 }
 
-
-/* —————————————————————————
-   8. RITUAL CARDS (The Ritual)
-————————————————————————— */
-.steps-list {
+.section-header {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
   gap: var(--space-sm);
+  flex-wrap: wrap;
 }
 
-.ritual-card {
-  position: relative;
-  border-radius: var(--radius-card);
-  padding: var(--space-md);
-  cursor: pointer;
-  overflow: hidden;
-  transform-style: preserve-3d;
-  will-change: transform;
-  /* Soft shadow Z-20 */
-  box-shadow:
-    0 4px 50px rgba(0,0,0,0.05),
-    0 1px 10px rgba(0,0,0,0.04),
-    var(--glass-rim-light);
-  /* Staggered entrance — se añade --card-delay desde JS */
-  opacity: 0;
-  transform: translateY(20px) scale(0.98);
-  animation: cardEntrance var(--duration-slow) var(--ease-premium) forwards;
-  animation-delay: var(--card-delay, 0ms);
-  transition:
-    background var(--duration-slow) var(--ease-premium),
-    box-shadow var(--duration-normal) var(--ease-premium),
-    transform var(--duration-fast) var(--ease-premium);
-}
-
-@keyframes cardEntrance {
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.ritual-card::after {
-  /* Destello de luz para Glass Tilt */
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(
-    circle 120px at var(--tilt-x, 50%) var(--tilt-y, 30%),
-    rgba(255,255,255,0.12),
-    transparent 70%
-  );
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--duration-fast) ease;
-}
-
-.ritual-card:hover::after,
-.ritual-card.tilting::after {
-  opacity: 1;
-}
-
-/* Card completada */
-.ritual-card.completed {
+.section-title {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   opacity: 0.65;
 }
 
-.ritual-card.completed .card-step-label {
-  text-decoration: line-through;
-  opacity: 0.4;
+/* Season toggle */
+.season-toggle { display:flex; gap:4px; }
+
+.season-btn {
+  padding: 5px 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-primary);
+  opacity: 0.5;
+  transition: all var(--duration-fast) var(--ease-premium);
 }
 
-/* Layout interno de la card */
-.card-inner {
+.season-btn.active {
+  opacity: 1;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+
+/* —— 9. STEP CARDS (generadas por app.js) ——— */
+.steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.step-card {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  padding: var(--space-md);
+  border-radius: var(--radius-card);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-rim-light);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  transition: all var(--duration-fast) var(--ease-premium);
+  /* Glow tracking */
+  --glow-pos: none;
 }
 
-.card-icon-wrap {
-  width: 48px; height: 48px;
+.step-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--glow-pos);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Color tints por tipo */
+.step-card.step-blue   { background: rgba(234,244,255,0.5); border-color: rgba(180,220,255,0.5); }
+.step-card.step-purple { background: rgba(243,238,255,0.5); border-color: rgba(200,180,255,0.5); }
+.step-card.step-pink   { background: rgba(255,236,244,0.5); border-color: rgba(255,180,215,0.5); }
+.step-card.step-gold   { background: rgba(255,248,230,0.5); border-color: rgba(255,210,120,0.5); }
+.step-card.step-green  { background: rgba(234,255,242,0.5); border-color: rgba(150,230,180,0.5); }
+
+[data-theme="night"] .step-card.step-blue   { background: rgba(20,50,90,0.4);  border-color: rgba(80,140,255,0.25); }
+[data-theme="night"] .step-card.step-purple { background: rgba(50,20,90,0.4);  border-color: rgba(160,100,255,0.25); }
+[data-theme="night"] .step-card.step-pink   { background: rgba(80,20,50,0.4);  border-color: rgba(255,100,160,0.25); }
+[data-theme="night"] .step-card.step-gold   { background: rgba(70,50,10,0.4);  border-color: rgba(220,170,50,0.25); }
+[data-theme="night"] .step-card.step-green  { background: rgba(10,60,40,0.4);  border-color: rgba(80,200,130,0.25); }
+
+.step-number {
+  font-size: 1.5rem;
+  line-height: 1;
+  width: 44px; height: 44px;
   flex-shrink: 0;
-  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,0.2);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.25);
   border: 1px solid rgba(255,255,255,0.3);
-  font-size: 1.4rem;
-  transition: transform var(--duration-fast) var(--ease-premium);
 }
 
-.ritual-card.completed .card-icon-wrap {
-  opacity: 0.5;
-}
+.step-info { flex: 1; min-width: 0; }
 
-.card-text {
-  flex: 1;
-  min-width: 0;
-}
-
-/* Jerarquía de texto premium */
-.card-step-number {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  opacity: 0.3;
+.step-label {
   font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.45;
   margin-bottom: 2px;
 }
 
-.card-step-label {
+.step-product {
   font-family: var(--font-sans);
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: all var(--duration-fast) ease;
 }
 
-.card-step-note {
+.step-note {
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 0.72rem;
   font-style: italic;
-  color: var(--text-primary);
   opacity: 0.5;
-  margin-top: 2px;
+  margin-top: 3px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Check icon — Iconografía reactiva */
-.card-check {
-  width: 28px; height: 28px;
+/* Completed state */
+.step-card.completed {
+  opacity: 0.5;
+}
+.step-card.completed .step-product {
+  text-decoration: line-through;
+}
+.step-check {
+  position: absolute;
+  top: 10px; right: 12px;
+  width: 22px; height: 22px;
   border-radius: 50%;
-  border: 1.5px solid rgba(0,0,0,0.15);
+  background: var(--text-primary);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  transition: all var(--duration-fast) var(--ease-premium);
-  background: transparent;
+  opacity: 0.75;
 }
 
-.ritual-card.completed .card-check {
-  background: var(--text-primary);
-  border-color: var(--text-primary);
-  opacity: 0.7;
+/* Haptic pop */
+@keyframes hapticPop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.95); }
+  70%  { transform: scale(1.03); }
+  100% { transform: scale(1); }
 }
+.haptic-pop { animation: hapticPop 280ms var(--ease-premium); }
 
-.card-check svg {
-  width: 14px; height: 14px;
-  opacity: 0;
-  stroke: #fff;
-  transition: opacity var(--duration-fast) ease;
+/* Completing flash */
+@keyframes completingFlash {
+  0%   { filter: brightness(1); }
+  50%  { filter: brightness(1.12); }
+  100% { filter: brightness(1); }
 }
+.completing { animation: completingFlash 180ms ease; }
 
-.ritual-card.completed .card-check svg {
-  opacity: 1;
+
+/* —— 10. NIGHT ALERT (Olay) —————————— */
+.night-alert {
+  display: none;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-card);
+  background: rgba(255,200,80,0.22);
+  border: 1px solid rgba(255,180,50,0.4);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #6b3c00;
+  margin-bottom: var(--space-md);
+  gap: 8px;
 }
+.night-alert.show { display: flex; }
+.night-alert strong { font-weight: 700; margin-right: 6px; }
 
 
-/* —————————————————————————
-   9. PROGRESS RING
-————————————————————————— */
-.progress-wrap {
+/* —— 11. NIGHT CALENDAR ——————————— */
+.night-calendar {
   display: flex;
   flex-direction: column;
+  gap: 10px;
+}
+
+.night-row {
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-rim-light);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+.olay-night {
+  background: rgba(255,248,230,0.5);
+  border-color: rgba(255,210,100,0.45);
+}
+[data-theme="night"] .olay-night {
+  background: rgba(80,55,10,0.45);
+  border-color: rgba(220,170,50,0.3);
+}
+
+.nia-night {
+  background: rgba(234,255,242,0.5);
+  border-color: rgba(120,220,160,0.4);
+}
+[data-theme="night"] .nia-night {
+  background: rgba(10,60,35,0.45);
+  border-color: rgba(80,200,120,0.3);
+}
+
+.night-day {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: var(--space-xs);
+  display: flex;
   align-items: center;
+  justify-content: space-between;
+  color: var(--text-primary);
+}
+
+.night-day span {
+  font-size: 0.7rem;
+  font-weight: 500;
+  opacity: 0.6;
+  letter-spacing: 0.04em;
+}
+
+.night-steps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 6px;
-  padding: var(--space-lg) 0 var(--space-md);
 }
 
-.progress-ring {
-  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));
+.night-step {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.progress-ring__bg {
-  fill: none;
-  stroke: rgba(0,0,0,0.06);
-  stroke-width: 4;
+.night-step-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  opacity: 0.45;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.progress-ring__fill {
-  fill: none;
-  stroke: var(--text-primary);
-  stroke-width: 4;
-  stroke-linecap: round;
-  stroke-dasharray: 188.5;
-  stroke-dashoffset: 188.5;
-  transform: rotate(-90deg);
-  transform-origin: center;
-  transition: stroke-dashoffset var(--duration-slow) var(--ease-premium),
-              stroke var(--duration-slow) ease;
+.night-step-product {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+
+/* —— 12. TIPS CARDS —————————————— */
+.tips-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tip-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-radius: var(--radius-card);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-rim-light);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+.tip-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.tip-content h3 {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.tip-content p {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--text-primary);
   opacity: 0.7;
 }
 
-.progress-label {
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 500;
-  opacity: 0.5;
-  letter-spacing: 0.08em;
-}
 
-
-/* —————————————————————————
-   10. FLOATING DOCK (Z-30)
-————————————————————————— */
-.floating-dock {
-  position: fixed;
-  bottom: calc(env(safe-area-inset-bottom, 12px) + 12px);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: var(--z-dock);
+/* —— 13. ROUTINE-LIST (tab mañana) ——————— */
+.routine-list {
   display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 10px 16px;
-  border-radius: var(--radius-dock);
-  /* Z-30 Jewelry glass */
-  background: rgba(255,255,255,0.25);
-  backdrop-filter: blur(40px) saturate(200%);
-  -webkit-backdrop-filter: blur(40px) saturate(200%);
-  border: 0.5px solid rgba(255,255,255,0.55);
-  box-shadow:
-    0 8px 40px rgba(0,0,0,0.12),
-    inset 0 0.5px 0 rgba(255,255,255,0.8);
-  transition: background var(--duration-slow) var(--ease-premium);
-}
-
-[data-phase="night"] .floating-dock {
-  background: rgba(40, 25, 90, 0.45);
-  border-color: rgba(150, 120, 255, 0.35);
-}
-
-.dock-btn {
-  width: 46px; height: 46px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 16px;
-  background: transparent;
-  cursor: pointer;
-  color: var(--text-primary);
-  opacity: 0.4;
-  transition: all var(--duration-fast) var(--ease-premium);
-  position: relative;
-}
-
-.dock-btn.active {
-  opacity: 1;
-  background: rgba(255,255,255,0.3);
-}
-
-.dock-btn:active {
-  transform: scale(0.88);
+  flex-direction: column;
+  gap: 10px;
 }
 
 
-/* —————————————————————————
-   11. PHASE TRANSITIONS
-————————————————————————— */
-[data-phase="night"] body,
-[data-phase="night"] .header-title,
-[data-phase="night"] .card-step-label,
-[data-phase="night"] .card-step-note {
-  color: hsl(240, 30%, 92%);
+/* —— 14. RESPONSIVE ——————————————— */
+@media (min-width:480px) {
+  .app-wrapper { padding-left: var(--space-lg); padding-right: var(--space-lg); }
 }
 
-[data-phase="night"] .ritual-card {
-  background: rgba(30, 20, 70, 0.35);
-}
-
-[data-phase="dawn"] .ritual-card {
-  background: rgba(255, 200, 210, 0.22);
-}
-
-[data-phase="golden"] .ritual-card {
-  background: rgba(255, 160, 60, 0.18);
-}
-
-[data-phase="day"] .ritual-card {
-  background: rgba(255, 255, 255, 0.28);
-}
-
-
-/* —————————————————————————
-   12. ROUTINE CONTAINER
-————————————————————————— */
-.routine-container {
-  padding: 0 0 var(--space-xl);
-}
-
-
-/* —————————————————————————
-   13. RESPONSIVE
-————————————————————————— */
-@media (min-width: 480px) {
-  .app-main {
-    padding-left: var(--space-md);
-    padding-right: var(--space-md);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
 }
