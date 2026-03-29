@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es" data-phase="day">
+<html lang="es" data-phase="day" data-theme="day">
 <head>
   <meta charset="UTF-8">
+  <meta id="metaThemeColor" name="theme-color" content="#F0F8FF">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#f0f4ff">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Skincare Ritual ✦</title>
@@ -15,90 +15,126 @@
 </head>
 <body class="app-body">
 
-  <!-- Z-0: Core — Mesh Gradient Background -->
-  <div class="layer-core" aria-hidden="true">
-    <div class="mesh-gradient"></div>
+  <!-- Z-0: Fondo / Orbes circadianos -->
+  <div id="auraBg" class="aura-bg"></div>
+  <div class="orb-layer" aria-hidden="true">
+    <div id="orb1" class="orb orb1"></div>
+    <div id="orb2" class="orb orb2"></div>
+    <div id="orb3" class="orb orb3"></div>
   </div>
+  <canvas id="grainCanvas" class="grain-canvas"></canvas>
 
-  <!-- Z-10: Atmosphere — Grain + Particles -->
-  <div class="layer-atmosphere" aria-hidden="true">
-    <canvas id="grain-canvas" class="grain-overlay"></canvas>
-    <canvas id="particles-canvas" class="particles-layer"></canvas>
-  </div>
-
-  <!-- Z-20: Main Stage -->
-  <main class="app-main" id="app-root">
+  <!-- APP WRAPPER -->
+  <div id="app" class="app-wrapper">
 
     <!-- HEADER ÉCLAT -->
     <header class="header-eclat">
-      <div class="header-inner">
+      <div class="header-top">
         <div class="header-text-block">
+          <p id="currentDate" class="header-date"></p>
           <h1 class="header-title">Ritual de<br><em>Cuidado</em></h1>
-          <time class="header-time" id="header-clock"></time>
         </div>
-        <div class="phase-pill premium-glass" id="phase-pill">
-          <span class="phase-pill__icon" aria-hidden="true">☀️</span>
-          <div class="phase-pill__info">
-            <span class="phase-pill__label">Protección</span>
-            <span class="phase-pill__solar">
-              <span id="solar-sunrise">--:--</span> · <span id="solar-sunset">--:--</span>
-            </span>
+        <div class="header-actions">
+          <!-- Phase pill solar -->
+          <div class="phase-pill premium-glass" id="phase-pill">
+            <span class="phase-pill__icon" aria-hidden="true">☀️</span>
+            <div class="phase-pill__info">
+              <span class="phase-pill__label">Protección</span>
+              <span class="phase-pill__solar">
+                <span id="solar-sunrise">--:--</span> · <span id="solar-sunset">--:--</span>
+              </span>
+            </div>
           </div>
+          <!-- Theme toggle -->
+          <button id="themeToggle" class="theme-btn premium-glass" aria-label="Cambiar tema">
+            <span class="theme-icon">🌙</span>
+          </button>
+        </div>
+      </div>
+      <!-- Circadian label -->
+      <p id="circadianLabel" class="circadian-label"></p>
+      <!-- Day badge -->
+      <div class="day-card premium-glass">
+        <div class="card-glow-overlay" aria-hidden="true"></div>
+        <div class="day-card-inner">
+          <span id="dayBadge" class="day-badge"></span>
+          <span id="dayTitle" class="day-title"></span>
         </div>
       </div>
     </header>
 
-    <!-- CONTENIDO DE RUTINA -->
-    <div class="routine-container" id="routine-container">
-      <!-- Tabs Mañana/Noche -->
-      <nav class="routine-tabs" role="tablist" aria-label="Seleccionar rutina">
-        <button class="tab-btn active" role="tab" data-routine="morning" aria-selected="true">
-          <span class="tab-icon">🌸</span> Mañana
-        </button>
-        <button class="tab-btn" role="tab" data-routine="night" aria-selected="false">
-          <span class="tab-icon">🌙</span> Noche
-        </button>
-      </nav>
+    <!-- TABS NAV -->
+    <nav class="tabs-nav" role="tablist">
+      <button class="tab-btn active" data-tab="hoy" role="tab" aria-selected="true">Hoy</button>
+      <button class="tab-btn" data-tab="manana" role="tab" aria-selected="false">Mañana</button>
+      <button class="tab-btn" data-tab="semana" role="tab" aria-selected="false">Semana</button>
+      <button class="tab-btn" data-tab="tips" role="tab" aria-selected="false">Consejos</button>
+    </nav>
 
-      <!-- Steps se inyectan desde app.js -->
-      <div class="steps-list" id="steps-list" role="list"></div>
+    <!-- TAB: HOY -->
+    <section id="tab-hoy" class="tab-content active" role="tabpanel">
 
-      <!-- Progress ring -->
-      <div class="progress-wrap" aria-live="polite">
-        <svg class="progress-ring" width="72" height="72" viewBox="0 0 72 72" aria-hidden="true">
-          <circle class="progress-ring__bg" cx="36" cy="36" r="30"/>
-          <circle class="progress-ring__fill" cx="36" cy="36" r="30" id="progress-circle"/>
-        </svg>
-        <span class="progress-label" id="progress-label">0 / 0</span>
+      <!-- Mañana -->
+      <div class="section-block">
+        <div class="section-header">
+          <h2 class="section-title">☀️ Rutina de Mañana</h2>
+          <div class="season-toggle">
+            <button id="btnInvierno" class="season-btn active" onclick="setSeason('invierno')">❄️ Invierno</button>
+            <button id="btnVerano"   class="season-btn"        onclick="setSeason('verano')">🌞 Verano</button>
+          </div>
+        </div>
+        <div id="morningRoutine" class="steps-container"></div>
       </div>
-    </div>
-  </main>
 
-  <!-- Z-30: Floating Dock -->
-  <nav class="floating-dock" role="navigation" aria-label="Navegación principal">
-    <button class="dock-btn active" data-view="home" aria-label="Inicio">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    </button>
-    <button class="dock-btn" data-view="calendar" aria-label="Historial">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-    </button>
-    <button class="dock-btn" data-view="products" aria-label="Productos">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-    </button>
-    <button class="dock-btn" data-view="settings" aria-label="Ajustes">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41"/></svg>
-    </button>
-  </nav>
+      <!-- Alerta noche Olay -->
+      <div id="nightAlert" class="night-alert"></div>
 
-  <script type="module" src="solar-engine.js"></script>
-  <script type="module" src="atmosphere.js"></script>
-  <script type="module" src="features.js"></script>
-  <script type="module" src="app.js"></script>
+      <!-- Noche -->
+      <div class="section-block">
+        <h2 class="section-title">🌙 Rutina de Esta Noche</h2>
+        <div id="nightRoutine" class="steps-container"></div>
+      </div>
 
+    </section>
+
+    <!-- TAB: MAÑANA -->
+    <section id="tab-manana" class="tab-content" role="tabpanel" style="display:none">
+      <div class="section-block">
+        <div class="section-header">
+          <h2 class="section-title">☀️ Rutina Completa de Mañana</h2>
+          <div class="season-toggle">
+            <button id="btnInviernoM" class="season-btn active" onclick="setSeasonManana('invierno')">❄️ Invierno</button>
+            <button id="btnVeranoM"   class="season-btn"        onclick="setSeasonManana('verano')">🌞 Verano</button>
+          </div>
+        </div>
+        <div id="morningFullList"></div>
+      </div>
+    </section>
+
+    <!-- TAB: SEMANA -->
+    <section id="tab-semana" class="tab-content" role="tabpanel" style="display:none">
+      <div class="section-block">
+        <h2 class="section-title">📅 Calendario Semanal de Noches</h2>
+        <div id="nightCalendar"></div>
+      </div>
+    </section>
+
+    <!-- TAB: TIPS -->
+    <section id="tab-tips" class="tab-content" role="tabpanel" style="display:none">
+      <div class="section-block">
+        <h2 class="section-title">💡 Recordatorios de Oro</h2>
+        <div id="tipsList"></div>
+      </div>
+    </section>
+
+  </div><!-- /app-wrapper -->
+
+  <script src="app.js"></script>
+  <script src="solar-engine-compat.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(console.error);
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
       });
     }
   </script>
