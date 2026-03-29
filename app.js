@@ -73,6 +73,8 @@ const PHASES = [
   },
 ];
 
+const NIGHT_PHASE = PHASES[3]; // referencia rápida a los colores de noche
+
 function getPhase(min) {
   if (min >= 360  && min < 600)  return PHASES[0];
   if (min >= 600  && min < 1020) return PHASES[1];
@@ -97,20 +99,23 @@ function applyCircadianCycle() {
   html.setAttribute('data-phase', phase.id);
   html.setAttribute('data-theme', isNightMode ? 'night' : 'day');
 
+  // ✅ FIX: Usar siempre colores de noche en el fondo cuando isNightMode=true
+  const visualPhase = isNightMode ? NIGHT_PHASE : phase;
+
   const auraBg = document.getElementById('auraBg');
-  if (auraBg) auraBg.style.background = phase.bg;
+  if (auraBg) auraBg.style.background = visualPhase.bg;
 
   ['orb1','orb2','orb3'].forEach((id, idx) => {
     const orb = document.getElementById(id);
     if (!orb || orb.classList.contains('halo-touch')) return;
-    orb.style.background = phase[`orb${idx+1}`];
-    orb.style.top = phase[`pos${idx+1}`].top;
-    if (phase[`pos${idx+1}`].left)  { orb.style.left  = phase[`pos${idx+1}`].left;  orb.style.right = ''; }
-    if (phase[`pos${idx+1}`].right) { orb.style.right = phase[`pos${idx+1}`].right; orb.style.left  = ''; }
+    orb.style.background = visualPhase[`orb${idx+1}`];
+    orb.style.top = visualPhase[`pos${idx+1}`].top;
+    if (visualPhase[`pos${idx+1}`].left)  { orb.style.left  = visualPhase[`pos${idx+1}`].left;  orb.style.right = ''; }
+    if (visualPhase[`pos${idx+1}`].right) { orb.style.right = visualPhase[`pos${idx+1}`].right; orb.style.left  = ''; }
   });
 
   const label = document.getElementById('circadianLabel');
-  if (label) label.textContent = `${phase.icon} ${phase.label}`;
+  if (label) label.textContent = `${visualPhase.icon} ${visualPhase.label}`;
 
   const metaColor = document.getElementById('metaThemeColor');
   if (metaColor) metaColor.setAttribute('content', isNightMode ? '#0F0E1A' : phase.metaColor);
