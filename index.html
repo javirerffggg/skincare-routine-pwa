@@ -15,19 +15,19 @@
 </head>
 <body class="app-body">
 
-  <!-- Z-0: Fondo / Orbes circadianos -->
+  <!-- Fondo circadiano -->
   <div id="auraBg" class="aura-bg"></div>
   <div class="orb-layer" aria-hidden="true">
-    <div id="orb1" class="orb orb1"></div>
-    <div id="orb2" class="orb orb2"></div>
-    <div id="orb3" class="orb orb3"></div>
+    <div id="orb1" class="orb"></div>
+    <div id="orb2" class="orb"></div>
+    <div id="orb3" class="orb"></div>
   </div>
   <canvas id="grainCanvas" class="grain-canvas"></canvas>
 
-  <!-- APP WRAPPER -->
+  <!-- APP -->
   <div id="app" class="app-wrapper">
 
-    <!-- HEADER ÉCLAT -->
+    <!-- HEADER -->
     <header class="header-eclat">
       <div class="header-top">
         <div class="header-text-block">
@@ -35,9 +35,8 @@
           <h1 class="header-title">Ritual de<br><em>Cuidado</em></h1>
         </div>
         <div class="header-actions">
-          <!-- Phase pill solar -->
-          <div class="phase-pill premium-glass" id="phase-pill">
-            <span class="phase-pill__icon" aria-hidden="true">☀️</span>
+          <div class="phase-pill premium-glass">
+            <span class="phase-pill__icon">☀️</span>
             <div class="phase-pill__info">
               <span class="phase-pill__label">Protección</span>
               <span class="phase-pill__solar">
@@ -45,15 +44,12 @@
               </span>
             </div>
           </div>
-          <!-- Theme toggle -->
           <button id="themeToggle" class="theme-btn premium-glass" aria-label="Cambiar tema">
             <span class="theme-icon">🌙</span>
           </button>
         </div>
       </div>
-      <!-- Circadian label -->
       <p id="circadianLabel" class="circadian-label"></p>
-      <!-- Day badge -->
       <div class="day-card premium-glass">
         <div class="card-glow-overlay" aria-hidden="true"></div>
         <div class="day-card-inner">
@@ -63,36 +59,46 @@
       </div>
     </header>
 
-    <!-- TABS NAV -->
+    <!-- TABS -->
     <nav class="tabs-nav" role="tablist">
-      <button class="tab-btn active" data-tab="hoy" role="tab" aria-selected="true">Hoy</button>
-      <button class="tab-btn" data-tab="manana" role="tab" aria-selected="false">Mañana</button>
-      <button class="tab-btn" data-tab="semana" role="tab" aria-selected="false">Semana</button>
-      <button class="tab-btn" data-tab="tips" role="tab" aria-selected="false">Consejos</button>
+      <button class="tab-btn active" data-tab="hoy"    role="tab">Hoy</button>
+      <button class="tab-btn"        data-tab="manana" role="tab">Mañana</button>
+      <button class="tab-btn"        data-tab="semana" role="tab">Semana</button>
+      <button class="tab-btn"        data-tab="tips"   role="tab">Consejos</button>
     </nav>
 
     <!-- TAB: HOY -->
     <section id="tab-hoy" class="tab-content active" role="tabpanel">
 
-      <!-- Mañana -->
-      <div class="section-block">
+      <!-- RUTINA MAÑANA -->
+      <div id="morning-block" class="section-block">
         <div class="section-header">
           <h2 class="section-title">☀️ Rutina de Mañana</h2>
           <div class="season-toggle">
-            <button id="btnInvierno" class="season-btn active" onclick="setSeason('invierno')">❄️ Invierno</button>
-            <button id="btnVerano"   class="season-btn"        onclick="setSeason('verano')">🌞 Verano</button>
+            <button id="btnInvierno" class="season-btn active" onclick="setSeason('invierno')">❄️ Inv</button>
+            <button id="btnVerano"   class="season-btn"        onclick="setSeason('verano')">🌞 Ver</button>
           </div>
         </div>
         <div id="morningRoutine" class="steps-container"></div>
       </div>
 
-      <!-- Alerta noche Olay -->
+      <!-- HINT noche (visible solo durante el día) -->
+      <div id="night-hint" class="routine-hint" style="display:none">
+        🌙 La rutina de noche aparecerá aquí a partir de las 21:00
+      </div>
+
+      <!-- ALERTA OLAY -->
       <div id="nightAlert" class="night-alert"></div>
 
-      <!-- Noche -->
-      <div class="section-block">
+      <!-- RUTINA NOCHE -->
+      <div id="night-block" class="section-block" style="display:none">
         <h2 class="section-title">🌙 Rutina de Esta Noche</h2>
         <div id="nightRoutine" class="steps-container"></div>
+      </div>
+
+      <!-- HINT mañana (visible solo durante la noche) -->
+      <div id="morning-hint" class="routine-hint" style="display:none">
+        ☀️ La rutina de mañana aparecerá a partir de las 6:00
       </div>
 
     </section>
@@ -103,8 +109,8 @@
         <div class="section-header">
           <h2 class="section-title">☀️ Rutina Completa de Mañana</h2>
           <div class="season-toggle">
-            <button id="btnInviernoM" class="season-btn active" onclick="setSeasonManana('invierno')">❄️ Invierno</button>
-            <button id="btnVeranoM"   class="season-btn"        onclick="setSeasonManana('verano')">🌞 Verano</button>
+            <button id="btnInviernoM" class="season-btn active" onclick="setSeasonManana('invierno')">❄️ Inv</button>
+            <button id="btnVeranoM"   class="season-btn"        onclick="setSeasonManana('verano')">🌞 Ver</button>
           </div>
         </div>
         <div id="morningFullList"></div>
@@ -127,10 +133,9 @@
       </div>
     </section>
 
-  </div><!-- /app-wrapper -->
+  </div><!-- /app -->
 
   <script src="app.js"></script>
-  <script src="solar-engine-compat.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

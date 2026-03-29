@@ -17,8 +17,6 @@ function minuteOfDay() {
   const now = new Date();
   return now.getHours() * 60 + now.getMinutes();
 }
-function lerp(a, b, t) { return a + (b - a) * t; }
-function smoothstep(t) { return t * t * (3 - 2 * t); }
 
 const PHASES = [
   {
@@ -32,6 +30,7 @@ const PHASES = [
     pos2: { top:'70%',  right:'-60px' },
     pos3: { top:'80%',  left:'30%'    },
     metaColor: '#FFF0F5',
+    isNight: false,
   },
   {
     id: 'day', label: 'Día Pleno — Protección', icon: '☀️',
@@ -44,6 +43,7 @@ const PHASES = [
     pos2: { top:'20%',   right:'-80px' },
     pos3: { top:'40%',   left:'-60px'  },
     metaColor: '#F0F8FF',
+    isNight: false,
   },
   {
     id: 'dusk', label: 'Hora Dorada — Transición', icon: '🌇',
@@ -56,9 +56,10 @@ const PHASES = [
     pos2: { top:'35%', right:'-60px' },
     pos3: { top:'55%', left:'25%'    },
     metaColor: '#FFF0E5',
+    isNight: false,
   },
   {
-    id: 'night', label: 'Medianoche — Reparación', icon: '🌌',
+    id: 'night', label: 'Noche — Reparación', icon: '🌙',
     start: 1260, end: 360,
     bg:   'hsl(240, 30%, 8%)',
     orb1: 'radial-gradient(circle, hsla(260,60%,35%,0.75), transparent 70%)',
@@ -68,88 +69,97 @@ const PHASES = [
     pos2: { top:'-60px', right:'10%'   },
     pos3: { top:'15%',   left:'35%'    },
     metaColor: '#0F0E1A',
+    isNight: true,
   },
 ];
 
 function getPhase(min) {
-  if (min >= 360  && min < 600)  return PHASES[0];
-  if (min >= 600  && min < 1020) return PHASES[1];
-  if (min >= 1020 && min < 1260) return PHASES[2];
-  return PHASES[3];
-}
-function phaseProgress(min) {
-  const p = getPhase(min);
-  if (p.id === 'night') {
-    const rel = min >= 1260 ? min - 1260 : min + 180;
-    return Math.min(rel / 540, 1);
-  }
-  return Math.min((min - p.start) / (p.end - p.start), 1);
+  if (min >= 360  && min < 600)  return PHASES[0]; // dawn
+  if (min >= 600  && min < 1020) return PHASES[1]; // day
+  if (min >= 1020 && min < 1260) return PHASES[2]; // dusk
+  return PHASES[3];                                 // night
 }
 
 // =====================================================
-// CIRCADIAN ENGINE — apply to DOM
+// CIRCADIAN ENGINE — aplica tema + colores al DOM
 // =====================================================
 let circadianTimer = null;
 
 function applyCircadianCycle() {
-  const min     = minuteOfDay();
-  const phase   = getPhase(min);
-  const html    = document.documentElement;
+  const min   = minuteOfDay();
+  const phase = getPhase(min);
+  const html  = document.documentElement;
+
   const manualThemeLS = localStorage.getItem(LS_THEME_MANUAL);
   const systemDark    = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const forceDark     = manualThemeLS === 'night' || (!manualThemeLS && systemDark);
+  // Noche automática: phase.isNight OR preferencia del sistema OR override manual
+  const isNightMode   = phase.isNight || manualThemeLS === 'night' || (!manualThemeLS && systemDark);
 
   html.setAttribute('data-phase', phase.id);
-  if (forceDark) {
-    html.setAttribute('data-theme', 'night');
-  } else {
-    html.setAttribute('data-theme', phase.id === 'night' ? 'night' : 'day');
-  }
+  html.setAttribute('data-theme', isNightMode ? 'night' : 'day');
 
+  // Fondo y orbes
   const auraBg = document.getElementById('auraBg');
   if (auraBg) auraBg.style.background = phase.bg;
 
-  const orb1 = document.getElementById('orb1');
-  const orb2 = document.getElementById('orb2');
-  const orb3 = document.getElementById('orb3');
-  if (orb1 && !orb1.classList.contains('halo-touch')) {
-    orb1.style.background = phase.orb1;
-    orb1.style.top  = phase.pos1.top;
-    if (phase.pos1.left)  { orb1.style.left  = phase.pos1.left;  orb1.style.right = ''; }
-    if (phase.pos1.right) { orb1.style.right = phase.pos1.right; orb1.style.left  = ''; }
-  }
-  if (orb2) {
-    orb2.style.background = phase.orb2;
-    orb2.style.top  = phase.pos2.top;
-    if (phase.pos2.left)  { orb2.style.left  = phase.pos2.left;  orb2.style.right = ''; }
-    if (phase.pos2.right) { orb2.style.right = phase.pos2.right; orb2.style.left  = ''; }
-  }
-  if (orb3) {
-    orb3.style.background = phase.orb3;
-    orb3.style.top  = phase.pos3.top;
-    if (phase.pos3.left)  { orb3.style.left  = phase.pos3.left;  orb3.style.right = ''; }
-    if (phase.pos3.right) { orb3.style.right = phase.pos3.right; orb3.style.left  = ''; }
-  }
+  ['orb1','orb2','orb3'].forEach((id, idx) => {
+    const orb = document.getElementById(id);
+    if (!orb || orb.classList.contains('halo-touch')) return;
+    const bgKey  = `orb${idx+1}`;
+    const posKey = `pos${idx+1}`;
+    orb.style.background = phase[bgKey];
+    orb.style.top = phase[posKey].top;
+    if (phase[posKey].left)  { orb.style.left  = phase[posKey].left;  orb.style.right = ''; }
+    if (phase[posKey].right) { orb.style.right = phase[posKey].right; orb.style.left  = ''; }
+  });
 
+  // Labels
   const label = document.getElementById('circadianLabel');
   if (label) label.textContent = `${phase.icon} ${phase.label}`;
+
   const metaColor = document.getElementById('metaThemeColor');
-  if (metaColor) metaColor.setAttribute('content', forceDark ? '#0F0E1A' : phase.metaColor);
+  if (metaColor) metaColor.setAttribute('content', isNightMode ? '#0F0E1A' : phase.metaColor);
+
   const icon = document.querySelector('.theme-icon');
-  if (icon) {
-    if (phase.id === 'night' || forceDark) icon.textContent = '☀️';
-    else icon.textContent = '🌙';
-  }
+  if (icon) icon.textContent = isNightMode ? '☀️' : '🌙';
+
+  // Actualizar visibilidad de secciones en pestaña Hoy
+  updateRoutineVisibility(phase.isNight);
 }
 
 function startCircadianCycle() {
   applyCircadianCycle();
-  const now  = new Date();
+  const now = new Date();
   const msToNextMin = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
   setTimeout(() => {
     applyCircadianCycle();
     circadianTimer = setInterval(applyCircadianCycle, 60_000);
   }, msToNextMin);
+}
+
+// =====================================================
+// RUTINA CONTEXTUAL — muestra solo lo que toca ahora
+// =====================================================
+function updateRoutineVisibility(isNightPhase) {
+  const morningBlock = document.getElementById('morning-block');
+  const nightBlock   = document.getElementById('night-block');
+  const morningHint  = document.getElementById('morning-hint');
+  const nightHint    = document.getElementById('night-hint');
+  if (!morningBlock || !nightBlock) return;
+
+  if (isNightPhase) {
+    // Fase noche: mostrar noche, ocultar mañana
+    morningBlock.style.display = 'none';
+    nightBlock.style.display   = 'block';
+    if (morningHint) morningHint.style.display = 'none';
+    if (nightHint)   nightHint.style.display   = 'none';
+  } else {
+    // Fase día: mostrar mañana, ocultar noche
+    morningBlock.style.display = 'block';
+    nightBlock.style.display   = 'none';
+    if (morningHint) morningHint.style.display = 'none';
+    if (nightHint)   nightHint.style.display   = 'block';
+  }
 }
 
 // =====================================================
@@ -166,14 +176,14 @@ function initGrain() {
   }
   function drawGrain() {
     const w = canvas.width, h = canvas.height;
-    const imageData = ctx.createImageData(w, h);
-    const data = imageData.data;
+    const imgData = ctx.createImageData(w, h);
+    const data = imgData.data;
     for (let i = 0; i < data.length; i += 4) {
       const v = (Math.random() * 255) | 0;
       data[i] = data[i+1] = data[i+2] = v;
-      data[i + 3] = 255;
+      data[i+3] = 255;
     }
-    ctx.putImageData(imageData, 0, 0);
+    ctx.putImageData(imgData, 0, 0);
   }
   resize();
   window.addEventListener('resize', resize, { passive: true });
@@ -199,11 +209,8 @@ function initHaloTouch() {
       applyCircadianCycle();
     }, 3000);
   }
-  document.addEventListener('touchmove', e => {
-    const t = e.touches[0];
-    onTouch(t.clientX, t.clientY);
-  }, { passive: true });
-  document.addEventListener('mousemove', e => {
+  document.addEventListener('touchmove', e => onTouch(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+  document.addEventListener('mousemove',  e => {
     if (e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents) return;
     onTouch(e.clientX, e.clientY);
   });
@@ -214,45 +221,45 @@ function initHaloTouch() {
 // =====================================================
 const MORNING_STEPS = {
   invierno: [
-    { label:'Limpieza',        product:'CeraVe Hydrating',              note:'Solo para quitar el sudor de la noche. Agua fresca también vale.',                 icon:'🫧', color:'step-blue'   },
-    { label:'Contorno Ojos',   product:'L\'Oréal Roll-on',               note:'💡 Truco: Guárdalo en la nevera para deshinchar.',                                 icon:'👁',  color:'step-purple' },
-    { label:'Hidratación',      product:'Crema Akytania',                note:'En invierno la piel necesita más barrera protectora.',                          icon:'💧', color:'step-pink'   },
-    { label:'Protección Solar', product:'Garnier Super UV Fluido SPF 50',note:'⚠️ Obligatorio siempre. Agita el bote antes de usar. ¡Cuello y orejas también!', icon:'🛡', color:'step-gold'   },
+    { label:'Limpieza',         product:'CeraVe Hydrating',               note:'Solo para quitar el sudor de la noche. Agua fresca también vale.',                  icon:'🧇', color:'step-blue'   },
+    { label:'Contorno Ojos',    product:'L\'Oréal Roll-on',                note:'💡 Truco: Guárdalo en la nevera para deshinchar.',                                  icon:'👁',  color:'step-purple' },
+    { label:'Hidratación',       product:'Crema Akytania',                 note:'En invierno la piel necesita más barrera protectora.',                           icon:'💧', color:'step-pink'   },
+    { label:'Protección Solar',  product:'Garnier Super UV Fluido SPF 50', note:'⚠️ Obligatorio siempre. Agita el bote antes de usar. ¡Cuello y orejas también!',  icon:'🛡', color:'step-gold'   },
   ],
   verano: [
-    { label:'Limpieza',        product:'CeraVe Hydrating o agua fresca',note:'Solo para quitar el sudor de la noche.',                                         icon:'🫧', color:'step-blue'   },
-    { label:'Contorno Ojos',   product:'L\'Oréal Roll-on',               note:'💡 Truco: Guárdalo en la nevera para deshinchar.',                                 icon:'👁',  color:'step-purple' },
-    { label:'Hidratación',      product:'Gel L\'Oréal o NADA',           note:'En verano el protector solar ya hidrata bastante.',                           icon:'💧', color:'step-pink'   },
-    { label:'Protección Solar', product:'Garnier Super UV Fluido SPF 50',note:'⚠️ Obligatorio siempre. Agita el bote antes de usar. ¡Cuello y orejas también!', icon:'🛡', color:'step-gold'   },
+    { label:'Limpieza',         product:'CeraVe Hydrating o agua fresca', note:'Solo para quitar el sudor de la noche.',                                          icon:'🧇', color:'step-blue'   },
+    { label:'Contorno Ojos',    product:'L\'Oréal Roll-on',                note:'💡 Truco: Guárdalo en la nevera para deshinchar.',                                  icon:'👁',  color:'step-purple' },
+    { label:'Hidratación',       product:'Gel L\'Oréal o NADA',            note:'En verano el protector solar ya hidrata bastante.',                            icon:'💧', color:'step-pink'   },
+    { label:'Protección Solar',  product:'Garnier Super UV Fluido SPF 50', note:'⚠️ Obligatorio siempre. Agita el bote antes de usar. ¡Cuello y orejas también!',  icon:'🛡', color:'step-gold'   },
   ],
 };
 
 const NIGHT_SCHEDULE = [
-  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' },
-  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' },
-  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' },
-  { type:'olay', cleanser:'CeraVe (Suave)', serum:'❌ NADA',                    eyes:'Beauty of Joseon', cream:'Olay Vit C + AHA'    },
-  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' },
-  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' },
-  { type:'olay', cleanser:'CeraVe (Suave)', serum:'❌ NADA',                    eyes:'Beauty of Joseon', cream:'Olay Vit C + AHA'    },
+  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' }, // Dom
+  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' }, // Lun
+  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' }, // Mar
+  { type:'olay', cleanser:'CeraVe (Suave)', serum:'❌ NADA',                    eyes:'Beauty of Joseon', cream:'Olay Vit C + AHA'    }, // Mié
+  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' }, // Jue
+  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' }, // Vie
+  { type:'olay', cleanser:'CeraVe (Suave)', serum:'❌ NADA',                    eyes:'Beauty of Joseon', cream:'Olay Vit C + AHA'    }, // Sáb
 ];
 
 const TIPS = [
   { icon:'⚠️', title:'Regla Olay (Mié y Sáb)',    text:'Esas noches NUNCA uses la Niacinamida de The Ordinary. La crema Olay ya es el tratamiento completo por sí sola.' },
   { icon:'👆', title:'Margen de Seguridad Olay',  text:'Cuando te pongas la crema Olay, no la acerques demasiado a los ojos. Deja un dedo de distancia.' },
   { icon:'💧', title:'Cantidad de Niacinamida',   text:'Con 3 gotas para toda la cara es suficiente. Si usas más, te saldrán "pelotillas" blancas al poner la crema después.' },
-  { icon:'🦒', title:'Cuello y Orejas',           text:'¡No los olvides! Especialmente con el protector solar por la mañana. Son las zonas más olvidadas y las que más envejecen.' },
+  { icon:'🦢', title:'Cuello y Orejas',           text:'¡No los olvides! Especialmente con el protector solar por la mañana. Son las zonas más olvidadas y las que más envejecen.' },
   { icon:'🔢', title:'Orden Contorno BoJ',        text:'Siempre pon el Beauty of Joseon antes de tu crema de noche (Cien, Akytania u Olay). Sérum → Contorno → Crema.' },
-  { icon:'🧊', title:'Truco del Roll-on',         text:'Guarda el L\'Oréal Roll-on en la nevera. El frío ayuda a deshinchar las ojeras muchísimo más.' },
-  { icon:'🌅', title:'SPF, siempre',              text:'El Garnier Super UV SPF 50 es obligatorio todos los días, aunque esté nublado. La radiación UV atraviesa las nubes.' },
+  { icon:'🧈', title:'Truco del Roll-on',         text:'Guarda el L\'Oréal Roll-on en la nevera. El frío ayuda a deshinchar las ojeras muchísimo más.' },
+  { icon:'🌅', title:'SPF, siempre',              text:'El Garnier Super UV SPF 50 es obligatorio todos los días, aunque esté nublado. La radiación UV atraviesa las nubes.' },
 ];
 
 // =====================================================
 // STATE
 // =====================================================
-let season        = localStorage.getItem(LS_SEASON)   || 'invierno';
-let seasonManana  = localStorage.getItem(LS_SEASON_M) || 'invierno';
-let manualTheme   = localStorage.getItem(LS_THEME_MANUAL);
+let season       = localStorage.getItem(LS_SEASON)   || 'invierno';
+let seasonManana = localStorage.getItem(LS_SEASON_M) || 'invierno';
+let manualTheme  = localStorage.getItem(LS_THEME_MANUAL);
 
 function todayStr() { return new Date().toISOString().slice(0, 10); }
 function loadChecklist() {
@@ -278,12 +285,12 @@ document.addEventListener('DOMContentLoaded', () => {
   renderNightCalendar();
   renderTips();
   initServiceWorker();
-  startCircadianCycle();
+  startCircadianCycle(); // aplica tema + visibilidad
   initGrain();
   initHaloTouch();
   initThemeSystem();
   initGlowTracking();
-  initScrollSpring();   // 🌊 Scroll spring resistance
+  initScrollSpring();
 });
 
 // =====================================================
@@ -296,55 +303,36 @@ function initDate() {
 }
 
 // =====================================================
-// TABS — Liquid State Transitions
-// Tres fases coordinadas:
-//  1. La pestaña saliente obtiene clase 'tab-leaving' → animación tabLiquidOut
-//  2. Tras la animación de salida, se oculta y se muestra la entrante
-//  3. La pestaña entrante recibe clase 'active' → tabLiquidIn + stagger cascade
+// TABS
 // =====================================================
 function initTabs() {
-  const btns     = document.querySelectorAll('.tab-btn');
-  const contents = document.querySelectorAll('.tab-content');
-  let   animating = false;
+  const btns = document.querySelectorAll('.tab-btn');
+  let animating = false;
 
   btns.forEach(btn => {
     btn.addEventListener('click', () => {
       if (animating) return;
-
-      const targetId  = 'tab-' + btn.dataset.tab;
-      const current   = document.querySelector('.tab-content.active');
-      const target    = document.getElementById(targetId);
-
-      // Si ya es la activa, no hacer nada
+      const targetId = 'tab-' + btn.dataset.tab;
+      const current  = document.querySelector('.tab-content.active');
+      const target   = document.getElementById(targetId);
       if (current === target) return;
 
       animating = true;
-
-      // — Actualizar botones de nav
       btns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
-      // — FASE 1: Animar salida de la pestaña actual
       if (current) {
         current.classList.add('tab-leaving');
         current.classList.remove('active');
-
-        // Esperar la duración de tabLiquidOut (280ms)
-        const OUT_DURATION = 280;
         setTimeout(() => {
           current.classList.remove('tab-leaving');
           current.style.display = 'none';
-
-          // — FASE 2: Mostrar y animar entrada de la nueva pestaña
           target.style.display = 'block';
-          // Forzar reflow para que la animación arranque desde cero
           void target.offsetHeight;
           target.classList.add('active');
-
           animating = false;
-        }, OUT_DURATION);
+        }, 280);
       } else {
-        // Primer render: no hay saliente
         target.style.display = 'block';
         void target.offsetHeight;
         target.classList.add('active');
@@ -356,110 +344,49 @@ function initTabs() {
 
 // =====================================================
 // SCROLL SPRING RESISTANCE
-// Efecto muelle orgánico al llegar al límite del scroll.
-// — Top boundary: estira el app hacia abajo (positivo)
-// — Bottom boundary: comprime el app hacia arriba (negativo)
-// El gesto transmite resistencia: cuanto más tiras, más responde,
-// pero al soltar retrocede con cubic-bezier(0.22,1,0.36,1).
 // =====================================================
 function initScrollSpring() {
   const app = document.getElementById('app');
   if (!app) return;
-
-  // Parámetros del muelle
-  const MAX_STRETCH    = 28;   // px máximos de estiramiento
-  const RESISTANCE     = 0.38; // factor de amortiguación (0–1)
-  const THRESHOLD_TOP  = 0;    // scroll position para activar top spring
-  const THRESHOLD_BOTTOM_PX = 60; // px antes del final para activar bottom spring
-
-  let touchStartY    = 0;
-  let touchStartScroll = 0;
-  let isTouching     = false;
-  let currentStretch = 0;
-  let releaseTimer   = null;
+  const MAX_STRETCH = 28, RESISTANCE = 0.38;
+  let touchStartY = 0, isTouching = false, currentStretch = 0, releaseTimer = null;
 
   function getScrollInfo() {
     const el = document.scrollingElement || document.documentElement;
-    return {
-      top:    el.scrollTop,
-      max:    el.scrollHeight - el.clientHeight,
-      height: el.clientHeight,
-    };
+    return { top: el.scrollTop, max: el.scrollHeight - el.clientHeight };
   }
-
   function applyStretch(px) {
     currentStretch = Math.max(-MAX_STRETCH, Math.min(MAX_STRETCH, px));
     app.style.setProperty('--scroll-stretch', currentStretch.toFixed(2));
     app.classList.add('spring-active');
     app.classList.remove('spring-release');
   }
-
   function releaseSpring() {
     currentStretch = 0;
     app.style.setProperty('--scroll-stretch', '0');
     app.classList.remove('spring-active');
     app.classList.add('spring-release');
     clearTimeout(releaseTimer);
-    releaseTimer = setTimeout(() => {
-      app.classList.remove('spring-release');
-    }, 600);
+    releaseTimer = setTimeout(() => app.classList.remove('spring-release'), 600);
   }
 
-  // Touch events — para iOS/Android
-  app.addEventListener('touchstart', e => {
-    touchStartY      = e.touches[0].clientY;
-    touchStartScroll = getScrollInfo().top;
-    isTouching       = true;
-  }, { passive: true });
-
+  app.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; isTouching = true; }, { passive: true });
   app.addEventListener('touchmove', e => {
     if (!isTouching) return;
-    const info  = getScrollInfo();
+    const info = getScrollInfo();
     const deltaY = e.touches[0].clientY - touchStartY;
-
-    // Top boundary: usuario intenta subir más allá del tope
-    if (info.top <= THRESHOLD_TOP && deltaY > 0) {
-      const stretch = deltaY * RESISTANCE;
-      applyStretch(stretch);
-      return;
-    }
-
-    // Bottom boundary: usuario intenta bajar más allá del fondo
-    if (info.top >= info.max - THRESHOLD_BOTTOM_PX && deltaY < 0) {
-      const stretch = deltaY * RESISTANCE;
-      applyStretch(stretch);
-      return;
-    }
-
-    // En scroll normal: liberar cualquier stretch residual
+    if (info.top <= 0 && deltaY > 0) { applyStretch(deltaY * RESISTANCE); return; }
+    if (info.top >= info.max - 60 && deltaY < 0) { applyStretch(deltaY * RESISTANCE); return; }
     if (currentStretch !== 0) releaseSpring();
   }, { passive: true });
+  app.addEventListener('touchend',   () => { isTouching = false; if (currentStretch !== 0) releaseSpring(); }, { passive: true });
+  app.addEventListener('touchcancel',() => { isTouching = false; releaseSpring(); }, { passive: true });
 
-  app.addEventListener('touchend', () => {
-    isTouching = false;
-    if (currentStretch !== 0) releaseSpring();
-  }, { passive: true });
-
-  app.addEventListener('touchcancel', () => {
-    isTouching = false;
-    releaseSpring();
-  }, { passive: true });
-
-  // Wheel events — para desktop/trackpad
   let wheelDebounce = null;
   window.addEventListener('wheel', e => {
     const info = getScrollInfo();
-
-    if (info.top <= 0 && e.deltaY < 0) {
-      // Overscroll hacia arriba
-      const stretch = Math.abs(e.deltaY) * RESISTANCE * 0.6;
-      applyStretch(stretch);
-    } else if (info.top >= info.max - 2 && e.deltaY > 0) {
-      // Overscroll hacia abajo
-      const stretch = -Math.abs(e.deltaY) * RESISTANCE * 0.6;
-      applyStretch(stretch);
-    }
-
+    if (info.top <= 0 && e.deltaY < 0)           applyStretch( Math.abs(e.deltaY) * RESISTANCE * 0.6);
+    else if (info.top >= info.max - 2 && e.deltaY > 0) applyStretch(-Math.abs(e.deltaY) * RESISTANCE * 0.6);
     clearTimeout(wheelDebounce);
     wheelDebounce = setTimeout(releaseSpring, 120);
   }, { passive: true });
@@ -474,10 +401,12 @@ function renderHoy() {
   document.getElementById('dayTitle').textContent  = DAYS[dow];
   renderMorningSteps('morningRoutine', season);
   renderNightToday(dow);
+  // La visibilidad se aplica después en applyCircadianCycle()
 }
 
 function renderMorningSteps(containerId, s) {
   const container = document.getElementById(containerId);
+  if (!container) return;
   container.innerHTML = MORNING_STEPS[s].map((step, i) =>
     stepCardHTML(step, i, `morning-${i}`, !!checklist[`morning-${i}`])
   ).join('');
@@ -488,19 +417,21 @@ function renderNightToday(dow) {
   const schedule  = NIGHT_SCHEDULE[dow];
   const container = document.getElementById('nightRoutine');
   const alertBox  = document.getElementById('nightAlert');
-  const isOlay    = schedule.type === 'olay';
+  if (!container) return;
+  const isOlay = schedule.type === 'olay';
   const steps = [
-    { label:'Limpieza',                           product:schedule.cleanser, icon:'🫧', color:'step-blue'   },
-    { label:isOlay ? 'Sérum — DESCANSO':'Sérum Cara', product:schedule.serum,    icon:isOlay?'🚫':'💚', color:isOlay?'step-purple':'step-green' },
-    { label:'Contorno Ojos',                      product:schedule.eyes,     icon:'👁',  color:'step-purple' },
-    { label:'Crema Final',                        product:schedule.cream,    icon:'🌙', color:'step-pink'   },
+    { label:'Limpieza',                                product: schedule.cleanser, icon:'🧇', color:'step-blue'                          },
+    { label: isOlay ? 'Sérum — DESCANSO' : 'Sérum Cara', product: schedule.serum,    icon: isOlay ? '🚫' : '💪', color: isOlay ? 'step-purple' : 'step-green' },
+    { label:'Contorno Ojos',                           product: schedule.eyes,     icon:'👁',  color:'step-purple'                         },
+    { label:'Crema Final',                             product: schedule.cream,    icon:'🌙', color:'step-pink'                           },
   ];
   container.innerHTML = steps.map((step, i) =>
     stepCardHTML(step, i, `night-${i}`, !!checklist[`night-${i}`])
   ).join('');
   attachStepInteractions(container);
+
   if (isOlay) {
-    alertBox.innerHTML = '<strong>⚠️ Noche Olay</strong>Recuerda: NO uses Niacinamida esta noche. La Olay ya es el tratamiento completo. Deja 1 dedo de distancia de la zona de ojos.';
+    alertBox.innerHTML = '<strong>⚠️ Noche Olay</strong> Recuerda: NO uses Niacinamida esta noche. La Olay ya es el tratamiento completo. Deja 1 dedo de distancia de la zona de ojos.';
     alertBox.classList.add('show');
   } else {
     alertBox.classList.remove('show');
@@ -589,6 +520,7 @@ window.setSeasonManana = function(s) {
 // =====================================================
 function renderManana() {
   const container = document.getElementById('morningFullList');
+  if (!container) return;
   container.innerHTML = `<div class="routine-list">${MORNING_STEPS[seasonManana].map((step, i) =>
     stepCardHTML(step, i, `mfull-${i}`, !!checklist[`mfull-${i}`])
   ).join('')}</div>`;
@@ -599,31 +531,33 @@ function renderManana() {
 // RENDER NIGHT CALENDAR
 // =====================================================
 function renderNightCalendar() {
+  const el = document.getElementById('nightCalendar');
+  if (!el) return;
   const dayNames = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   const order    = [1,2,3,4,5,6,0];
-  document.getElementById('nightCalendar').innerHTML =
-    `<div class="night-calendar">${order.map(i => {
-      const s = NIGHT_SCHEDULE[i], isOlay = s.type === 'olay';
-      return `<div class="night-row ${isOlay?'olay-night':'nia-night'}">
-        <div class="night-day">${dayNames[i]}<span>${isOlay?'✨ Noche Olay':'💚 Niacinamida'}</span></div>
-        <div class="night-steps">
-          <div class="night-step"><span class="night-step-label">🫧 Limpieza</span><span class="night-step-product">${s.cleanser}</span></div>
-          <div class="night-step"><span class="night-step-label">💊 Sérum</span><span class="night-step-product">${s.serum}</span></div>
-          <div class="night-step"><span class="night-step-label">👁 Contorno</span><span class="night-step-product">${s.eyes}</span></div>
-          <div class="night-step"><span class="night-step-label">🌙 Crema</span><span class="night-step-product">${s.cream}</span></div>
-        </div>
-      </div>`;
-    }).join('')}</div>`;
+  el.innerHTML = `<div class="night-calendar">${order.map(i => {
+    const s = NIGHT_SCHEDULE[i], isOlay = s.type === 'olay';
+    return `<div class="night-row ${isOlay ? 'olay-night' : 'nia-night'}">
+      <div class="night-day">${dayNames[i]}<span>${isOlay ? '✨ Noche Olay' : '💪 Niacinamida'}</span></div>
+      <div class="night-steps">
+        <div class="night-step"><span class="night-step-label">🧇 Limpieza</span><span class="night-step-product">${s.cleanser}</span></div>
+        <div class="night-step"><span class="night-step-label">💊 Sérum</span><span class="night-step-product">${s.serum}</span></div>
+        <div class="night-step"><span class="night-step-label">👁 Contorno</span><span class="night-step-product">${s.eyes}</span></div>
+        <div class="night-step"><span class="night-step-label">🌙 Crema</span><span class="night-step-product">${s.cream}</span></div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
 }
 
 // =====================================================
 // RENDER TIPS
 // =====================================================
 function renderTips() {
-  document.getElementById('tipsList').innerHTML =
-    `<div class="tips-list">${TIPS.map(tip =>
-      `<div class="tip-card"><div class="tip-icon">${tip.icon}</div><div class="tip-content"><h3>${tip.title}</h3><p>${tip.text}</p></div></div>`
-    ).join('')}</div>`;
+  const el = document.getElementById('tipsList');
+  if (!el) return;
+  el.innerHTML = `<div class="tips-list">${TIPS.map(tip =>
+    `<div class="tip-card"><div class="tip-icon">${tip.icon}</div><div class="tip-content"><h3>${tip.title}</h3><p>${tip.text}</p></div></div>`
+  ).join('')}</div>`;
 }
 
 // =====================================================
@@ -633,12 +567,15 @@ function initThemeSystem() {
   const mq  = window.matchMedia('(prefers-color-scheme: dark)');
   const btn = document.getElementById('themeToggle');
   if (!btn) return;
+
   btn.addEventListener('click', () => {
-    const next = document.documentElement.getAttribute('data-theme') === 'night' ? 'day' : 'night';
-    manualTheme = next;
-    localStorage.setItem(LS_THEME_MANUAL, next);
+    const current = document.documentElement.getAttribute('data-theme');
+    manualTheme = current === 'night' ? 'day' : 'night';
+    localStorage.setItem(LS_THEME_MANUAL, manualTheme);
     applyCircadianCycle();
   });
+
+  // Long press = resetear a automático
   let pressTimer;
   btn.addEventListener('pointerdown', () => {
     pressTimer = setTimeout(() => {
@@ -651,9 +588,7 @@ function initThemeSystem() {
   });
   btn.addEventListener('pointerup',    () => clearTimeout(pressTimer));
   btn.addEventListener('pointerleave', () => clearTimeout(pressTimer));
-  mq.addEventListener('change', () => {
-    if (!manualTheme) applyCircadianCycle();
-  });
+  mq.addEventListener('change', () => { if (!manualTheme) applyCircadianCycle(); });
 }
 
 // =====================================================
@@ -661,10 +596,7 @@ function initThemeSystem() {
 // =====================================================
 function initGlowTracking() {
   document.addEventListener('mousemove', e => handleGlowAt(e.clientX, e.clientY));
-  document.addEventListener('touchmove', e => {
-    const t = e.touches[0];
-    handleGlowAt(t.clientX, t.clientY);
-  }, { passive: true });
+  document.addEventListener('touchmove', e => handleGlowAt(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
   if (window.DeviceOrientationEvent) {
     window.addEventListener('deviceorientation', e => {
       const xPct = Math.min(Math.max(((e.gamma||0) + 45) / 90, 0), 1) * 100;
