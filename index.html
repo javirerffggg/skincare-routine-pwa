@@ -59,14 +59,6 @@
       </div>
     </header>
 
-    <!-- TABS -->
-    <nav class="tabs-nav" role="tablist">
-      <button class="tab-btn active" data-tab="hoy"    role="tab">Hoy</button>
-      <button class="tab-btn"        data-tab="manana" role="tab">Mañana</button>
-      <button class="tab-btn"        data-tab="semana" role="tab">Semana</button>
-      <button class="tab-btn"        data-tab="tips"   role="tab">Consejos</button>
-    </nav>
-
     <!-- TAB: HOY -->
     <section id="tab-hoy" class="tab-content active" role="tabpanel">
 
@@ -134,6 +126,26 @@
     </section>
 
   </div><!-- /app -->
+
+  <!-- BARRA INFERIOR FIJA -->
+  <nav class="bottom-nav" role="tablist" aria-label="Navegación principal">
+    <button class="bottom-tab active" data-tab="hoy"    role="tab">
+      <span class="bottom-tab__icon">🌅</span>
+      <span class="bottom-tab__label">Hoy</span>
+    </button>
+    <button class="bottom-tab" data-tab="manana" role="tab">
+      <span class="bottom-tab__icon">☀️</span>
+      <span class="bottom-tab__label">Mañana</span>
+    </button>
+    <button class="bottom-tab" data-tab="semana" role="tab">
+      <span class="bottom-tab__icon">📅</span>
+      <span class="bottom-tab__label">Semana</span>
+    </button>
+    <button class="bottom-tab" data-tab="tips"   role="tab">
+      <span class="bottom-tab__icon">💡</span>
+      <span class="bottom-tab__label">Consejos</span>
+    </button>
+  </nav>
 
   <script src="app.js"></script>
   <script>

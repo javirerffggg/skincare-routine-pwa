@@ -1,9 +1,9 @@
 /* =============================================================
-   SKINCARE RITUAL PWA — Elite CSS v2.2
+   SKINCARE RITUAL PWA — Elite CSS v2.3
    Arquitectura Éclat | Puerto Real, Cádiz
    ============================================================= */
 
-/* —— 1. TOKENS ——————————————————— */
+/* —— 1. TOKENS ——————————————————————— */
 :root {
   --hue-base: 210;
   --saturation-base: 35;
@@ -20,6 +20,7 @@
 
   --radius-card: 22px;
   --radius-pill: 50px;
+  --dock-height: 70px;
 
   --ease-premium:    cubic-bezier(0.22, 1, 0.36, 1);
   --duration-fast:   180ms;
@@ -48,7 +49,7 @@
   --step-green-bg:  rgba(234,255,242,0.7); --step-green-bd:  rgba(140,225,175,0.6);
 }
 
-/* —— MODO NOCHE —————————————————— */
+/* —— MODO NOCHE ———————————————————— */
 [data-theme="night"] {
   --bg:           hsl(240, 30%, 8%);
   --text:         hsl(240, 20%, 88%);
@@ -59,7 +60,6 @@
   --pill-bg:      rgba(70, 50, 140, 0.45);
   --pill-text:    #c8b8ff;
 
-  /* Step tints noche */
   --step-blue-bg:   rgba(15, 40, 80, 0.55);  --step-blue-bd:   rgba(70, 130, 220, 0.25);
   --step-purple-bg: rgba(40, 15, 80, 0.55);  --step-purple-bd: rgba(140, 90, 220, 0.25);
   --step-pink-bg:   rgba(70, 15, 45, 0.55);  --step-pink-bd:   rgba(220, 90, 150, 0.25);
@@ -78,12 +78,14 @@ body.app-body {
   background: var(--bg);
   min-height: 100dvh;
   overflow-x: hidden;
+  /* Espacio para la barra inferior */
+  padding-bottom: calc(var(--dock-height) + env(safe-area-inset-bottom, 0px));
   transition: background var(--duration-slow) var(--ease-premium),
               color var(--duration-slow) var(--ease-premium);
 }
 
 
-/* —— 3. FONDO CIRCADIANO ———————————— */
+/* —— 3. FONDO CIRCADIANO —————————— */
 .aura-bg {
   position: fixed; inset: 0; z-index: 0;
   transition: background 1.5s var(--ease-premium);
@@ -108,7 +110,7 @@ body.app-body {
 }
 
 
-/* —— 4. GLASS ——————————————————— */
+/* —— 4. GLASS ——————————————————————— */
 .premium-glass {
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur)) saturate(180%);
@@ -130,7 +132,7 @@ body.app-body {
   padding:
     env(safe-area-inset-top, 16px)
     var(--space-md)
-    calc(env(safe-area-inset-bottom, 0px) + 32px);
+    var(--space-lg);
   transform: translateY(calc(var(--scroll-stretch) * 1px));
 }
 .app-wrapper.spring-release {
@@ -138,14 +140,12 @@ body.app-body {
 }
 
 
-/* —— 6. HEADER ÉCLAT —————————————— */
+/* —— 6. HEADER ÉCLAT ————————————— */
 .header-eclat { padding: var(--space-sm) 0 var(--space-md); }
 
 .header-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-sm);
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: var(--space-sm);
   margin-bottom: var(--space-sm);
 }
 
@@ -222,30 +222,84 @@ body.app-body {
 }
 
 
-/* —— 7. TABS ———————————————————— */
-.tabs-nav {
-  display: flex; gap: 4px;
-  padding: 4px; border-radius: var(--radius-card);
-  background: rgba(128,128,128,0.08);
-  margin-bottom: var(--space-md);
-}
-.tab-btn {
-  flex: 1; padding: 9px 6px;
-  border: none; border-radius: calc(var(--radius-card) - 4px);
-  font-family: var(--font-sans); font-size: 0.8rem; font-weight: 500;
-  cursor: pointer; background: transparent;
-  color: var(--text); opacity: 0.45;
-  transition: all var(--duration-fast) var(--ease-premium);
-}
-.tab-btn.active {
-  opacity: 1;
+/* —— 7. BOTTOM NAV ———————————————— */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: stretch;
+  height: calc(var(--dock-height) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left:  env(safe-area-inset-left,  0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  /* Glass dock */
   background: var(--glass-bg);
-  box-shadow: var(--glass-shadow);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border-top: 1px solid var(--glass-border);
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.07), 0 -1px 0 var(--glass-border);
+  transition:
+    background var(--duration-slow) var(--ease-premium),
+    border-color var(--duration-slow) var(--ease-premium);
 }
 
+.bottom-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 8px 4px 10px;
+  position: relative;
+  color: var(--text);
+  opacity: 0.38;
+  transition: opacity var(--duration-fast) var(--ease-premium),
+              transform var(--duration-fast) var(--ease-premium);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-tab.active {
+  opacity: 1;
+}
+
+/* Píldora indicadora debajo del ícono activo */
+.bottom-tab.active::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px; height: 3px;
+  border-radius: 2px;
+  background: var(--text);
+  opacity: 0.7;
+  animation: pillIn var(--duration-normal) var(--ease-premium) both;
+}
+@keyframes pillIn {
+  from { width: 0; opacity: 0; }
+  to   { width: 28px; opacity: 0.7; }
+}
+
+.bottom-tab:active {
+  transform: scale(0.88);
+}
+
+.bottom-tab__icon  { font-size: 1.35rem; line-height: 1; }
+.bottom-tab__label {
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+
+/* —— 8. TAB CONTENTS ————————————— */
 .tab-content { display: none; }
 .tab-content.active   { display: block; animation: tabIn  var(--duration-normal) var(--ease-premium) both; }
 .tab-content.tab-leaving { animation: tabOut 280ms var(--ease-premium) both; }
@@ -253,7 +307,7 @@ body.app-body {
 @keyframes tabOut { from { opacity:1; } to { opacity:0; transform:translateY(-8px) scale(0.98); } }
 
 
-/* —— 8. SECTION BLOCKS ————————————— */
+/* —— 9. SECTION BLOCKS ——————————— */
 .section-block { margin-bottom: var(--space-lg); }
 .section-header {
   display: flex; align-items: center;
@@ -291,7 +345,7 @@ body.app-body {
 }
 
 
-/* —— 9. STEP CARDS ———————————————— */
+/* —— 10. STEP CARDS ——————————————— */
 .steps-container { display: flex; flex-direction: column; gap: 10px; }
 
 .step-card {
@@ -311,7 +365,6 @@ body.app-body {
   background: var(--glow-pos); pointer-events: none; border-radius: inherit;
 }
 
-/* Colores step — usan variables que cambian con data-theme */
 .step-card.step-blue   { background: var(--step-blue-bg);   border-color: var(--step-blue-bd);   }
 .step-card.step-purple { background: var(--step-purple-bg); border-color: var(--step-purple-bd); }
 .step-card.step-pink   { background: var(--step-pink-bg);   border-color: var(--step-pink-bd);   }
@@ -369,7 +422,7 @@ body.app-body {
 .completing { animation: completingFlash 180ms ease; }
 
 
-/* —— 10. NIGHT ALERT —————————————— */
+/* —— 11. NIGHT ALERT ————————————— */
 .night-alert {
   display: none;
   padding: var(--space-sm) var(--space-md);
@@ -387,7 +440,7 @@ body.app-body {
 }
 
 
-/* —— 11. NIGHT CALENDAR ———————————— */
+/* —— 12. NIGHT CALENDAR —————————— */
 .night-calendar { display: flex; flex-direction: column; gap: 10px; }
 
 .night-row {
@@ -395,7 +448,7 @@ body.app-body {
   border: 1px solid var(--glass-border);
   backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur));
 }
-.olay-night { background: var(--step-gold-bg); border-color: var(--step-gold-bd); }
+.olay-night { background: var(--step-gold-bg);  border-color: var(--step-gold-bd);  }
 .nia-night  { background: var(--step-green-bg); border-color: var(--step-green-bd); }
 
 .night-day {
@@ -407,11 +460,11 @@ body.app-body {
 
 .night-steps { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .night-step { display: flex; flex-direction: column; gap: 2px; }
-.night-step-label { font-size: 0.62rem; font-weight: 600; opacity: 0.45; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text); }
+.night-step-label  { font-size: 0.62rem; font-weight: 600; opacity: 0.45; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text); }
 .night-step-product { font-size: 0.8rem; font-weight: 600; color: var(--text); }
 
 
-/* —— 12. TIPS ——————————————————— */
+/* —— 13. TIPS ——————————————————————— */
 .tips-list { display: flex; flex-direction: column; gap: 10px; }
 .tip-card {
   display: flex; align-items: flex-start; gap: var(--space-sm);
@@ -420,18 +473,19 @@ body.app-body {
   box-shadow: var(--glass-shadow), var(--glass-rim);
   backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur));
 }
-.tip-icon { font-size: 1.4rem; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+.tip-icon  { font-size: 1.4rem; line-height: 1; flex-shrink: 0; margin-top: 2px; }
 .tip-content h3 { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .tip-content p  { font-size: 0.78rem; line-height: 1.55; color: var(--text-muted); }
 
 
-/* —— 13. ROUTINE LIST (tab mañana) —————— */
+/* —— 14. ROUTINE LIST (tab mañana) —— */
 .routine-list { display: flex; flex-direction: column; gap: 10px; }
 
 
-/* —— 14. RESPONSIVE ——————————————— */
+/* —— 15. RESPONSIVE ——————————————— */
 @media (min-width: 480px) {
   .app-wrapper { padding-left: var(--space-lg); padding-right: var(--space-lg); }
+  .bottom-nav  { max-width: 430px; left: 50%; transform: translateX(-50%); border-radius: 24px 24px 0 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }

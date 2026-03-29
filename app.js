@@ -74,14 +74,14 @@ const PHASES = [
 ];
 
 function getPhase(min) {
-  if (min >= 360  && min < 600)  return PHASES[0]; // dawn
-  if (min >= 600  && min < 1020) return PHASES[1]; // day
-  if (min >= 1020 && min < 1260) return PHASES[2]; // dusk
-  return PHASES[3];                                 // night
+  if (min >= 360  && min < 600)  return PHASES[0];
+  if (min >= 600  && min < 1020) return PHASES[1];
+  if (min >= 1020 && min < 1260) return PHASES[2];
+  return PHASES[3];
 }
 
 // =====================================================
-// CIRCADIAN ENGINE — aplica tema + colores al DOM
+// CIRCADIAN ENGINE
 // =====================================================
 let circadianTimer = null;
 
@@ -92,28 +92,23 @@ function applyCircadianCycle() {
 
   const manualThemeLS = localStorage.getItem(LS_THEME_MANUAL);
   const systemDark    = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  // Noche automática: phase.isNight OR preferencia del sistema OR override manual
   const isNightMode   = phase.isNight || manualThemeLS === 'night' || (!manualThemeLS && systemDark);
 
   html.setAttribute('data-phase', phase.id);
   html.setAttribute('data-theme', isNightMode ? 'night' : 'day');
 
-  // Fondo y orbes
   const auraBg = document.getElementById('auraBg');
   if (auraBg) auraBg.style.background = phase.bg;
 
   ['orb1','orb2','orb3'].forEach((id, idx) => {
     const orb = document.getElementById(id);
     if (!orb || orb.classList.contains('halo-touch')) return;
-    const bgKey  = `orb${idx+1}`;
-    const posKey = `pos${idx+1}`;
-    orb.style.background = phase[bgKey];
-    orb.style.top = phase[posKey].top;
-    if (phase[posKey].left)  { orb.style.left  = phase[posKey].left;  orb.style.right = ''; }
-    if (phase[posKey].right) { orb.style.right = phase[posKey].right; orb.style.left  = ''; }
+    orb.style.background = phase[`orb${idx+1}`];
+    orb.style.top = phase[`pos${idx+1}`].top;
+    if (phase[`pos${idx+1}`].left)  { orb.style.left  = phase[`pos${idx+1}`].left;  orb.style.right = ''; }
+    if (phase[`pos${idx+1}`].right) { orb.style.right = phase[`pos${idx+1}`].right; orb.style.left  = ''; }
   });
 
-  // Labels
   const label = document.getElementById('circadianLabel');
   if (label) label.textContent = `${phase.icon} ${phase.label}`;
 
@@ -123,7 +118,6 @@ function applyCircadianCycle() {
   const icon = document.querySelector('.theme-icon');
   if (icon) icon.textContent = isNightMode ? '☀️' : '🌙';
 
-  // Actualizar visibilidad de secciones en pestaña Hoy
   updateRoutineVisibility(phase.isNight);
 }
 
@@ -138,7 +132,7 @@ function startCircadianCycle() {
 }
 
 // =====================================================
-// RUTINA CONTEXTUAL — muestra solo lo que toca ahora
+// RUTINA CONTEXTUAL
 // =====================================================
 function updateRoutineVisibility(isNightPhase) {
   const morningBlock = document.getElementById('morning-block');
@@ -148,13 +142,11 @@ function updateRoutineVisibility(isNightPhase) {
   if (!morningBlock || !nightBlock) return;
 
   if (isNightPhase) {
-    // Fase noche: mostrar noche, ocultar mañana
     morningBlock.style.display = 'none';
     nightBlock.style.display   = 'block';
-    if (morningHint) morningHint.style.display = 'none';
+    if (morningHint) morningHint.style.display = 'block';
     if (nightHint)   nightHint.style.display   = 'none';
   } else {
-    // Fase día: mostrar mañana, ocultar noche
     morningBlock.style.display = 'block';
     nightBlock.style.display   = 'none';
     if (morningHint) morningHint.style.display = 'none';
@@ -221,37 +213,37 @@ function initHaloTouch() {
 // =====================================================
 const MORNING_STEPS = {
   invierno: [
-    { label:'Limpieza',         product:'CeraVe Hydrating',               note:'Solo para quitar el sudor de la noche. Agua fresca también vale.',                  icon:'🧇', color:'step-blue'   },
+    { label:'Limpieza',         product:'CeraVe Hydrating',               note:'Solo para quitar el sudor de la noche. Agua fresca también vale.',                  icon:'🫧', color:'step-blue'   },
     { label:'Contorno Ojos',    product:'L\'Oréal Roll-on',                note:'💡 Truco: Guárdalo en la nevera para deshinchar.',                                  icon:'👁',  color:'step-purple' },
     { label:'Hidratación',       product:'Crema Akytania',                 note:'En invierno la piel necesita más barrera protectora.',                           icon:'💧', color:'step-pink'   },
-    { label:'Protección Solar',  product:'Garnier Super UV Fluido SPF 50', note:'⚠️ Obligatorio siempre. Agita el bote antes de usar. ¡Cuello y orejas también!',  icon:'🛡', color:'step-gold'   },
+    { label:'Protección Solar',  product:'Garnier Super UV Fluido SPF 50', note:'⚠️ Obligatorio siempre. Agita el bote antes de usar. ¡Cuello y orejas también!',  icon:'🛡', color:'step-gold'   },
   ],
   verano: [
-    { label:'Limpieza',         product:'CeraVe Hydrating o agua fresca', note:'Solo para quitar el sudor de la noche.',                                          icon:'🧇', color:'step-blue'   },
+    { label:'Limpieza',         product:'CeraVe Hydrating o agua fresca', note:'Solo para quitar el sudor de la noche.',                                          icon:'🫧', color:'step-blue'   },
     { label:'Contorno Ojos',    product:'L\'Oréal Roll-on',                note:'💡 Truco: Guárdalo en la nevera para deshinchar.',                                  icon:'👁',  color:'step-purple' },
     { label:'Hidratación',       product:'Gel L\'Oréal o NADA',            note:'En verano el protector solar ya hidrata bastante.',                            icon:'💧', color:'step-pink'   },
-    { label:'Protección Solar',  product:'Garnier Super UV Fluido SPF 50', note:'⚠️ Obligatorio siempre. Agita el bote antes de usar. ¡Cuello y orejas también!',  icon:'🛡', color:'step-gold'   },
+    { label:'Protección Solar',  product:'Garnier Super UV Fluido SPF 50', note:'⚠️ Obligatorio siempre. Agita el bote antes de usar. ¡Cuello y orejas también!',  icon:'🛡', color:'step-gold'   },
   ],
 };
 
 const NIGHT_SCHEDULE = [
-  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' }, // Dom
-  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' }, // Lun
-  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' }, // Mar
-  { type:'olay', cleanser:'CeraVe (Suave)', serum:'❌ NADA',                    eyes:'Beauty of Joseon', cream:'Olay Vit C + AHA'    }, // Mié
-  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' }, // Jue
-  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' }, // Vie
-  { type:'olay', cleanser:'CeraVe (Suave)', serum:'❌ NADA',                    eyes:'Beauty of Joseon', cream:'Olay Vit C + AHA'    }, // Sáb
+  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' },
+  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' },
+  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' },
+  { type:'olay', cleanser:'CeraVe (Suave)', serum:'❌ NADA',                    eyes:'Beauty of Joseon', cream:'Olay Vit C + AHA'    },
+  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' },
+  { type:'nia',  cleanser:'Solimo Carbón',  serum:'Niacinamida T.O. (3 gotas)', eyes:'Beauty of Joseon', cream:'Akytania o Cien Q10' },
+  { type:'olay', cleanser:'CeraVe (Suave)', serum:'❌ NADA',                    eyes:'Beauty of Joseon', cream:'Olay Vit C + AHA'    },
 ];
 
 const TIPS = [
   { icon:'⚠️', title:'Regla Olay (Mié y Sáb)',    text:'Esas noches NUNCA uses la Niacinamida de The Ordinary. La crema Olay ya es el tratamiento completo por sí sola.' },
   { icon:'👆', title:'Margen de Seguridad Olay',  text:'Cuando te pongas la crema Olay, no la acerques demasiado a los ojos. Deja un dedo de distancia.' },
   { icon:'💧', title:'Cantidad de Niacinamida',   text:'Con 3 gotas para toda la cara es suficiente. Si usas más, te saldrán "pelotillas" blancas al poner la crema después.' },
-  { icon:'🦢', title:'Cuello y Orejas',           text:'¡No los olvides! Especialmente con el protector solar por la mañana. Son las zonas más olvidadas y las que más envejecen.' },
+  { icon:'🦒', title:'Cuello y Orejas',           text:'¡No los olvides! Especialmente con el protector solar por la mañana. Son las zonas más olvidadas y las que más envejecen.' },
   { icon:'🔢', title:'Orden Contorno BoJ',        text:'Siempre pon el Beauty of Joseon antes de tu crema de noche (Cien, Akytania u Olay). Sérum → Contorno → Crema.' },
-  { icon:'🧈', title:'Truco del Roll-on',         text:'Guarda el L\'Oréal Roll-on en la nevera. El frío ayuda a deshinchar las ojeras muchísimo más.' },
-  { icon:'🌅', title:'SPF, siempre',              text:'El Garnier Super UV SPF 50 es obligatorio todos los días, aunque esté nublado. La radiación UV atraviesa las nubes.' },
+  { icon:'🧊', title:'Truco del Roll-on',         text:'Guarda el L\'Oréal Roll-on en la nevera. El frío ayuda a deshinchar las ojeras muchísimo más.' },
+  { icon:'🌅', title:'SPF, siempre',              text:'El Garnier Super UV SPF 50 es obligatorio todos los días, aunque esté nublado. La radiación UV atraviesa las nubes.' },
 ];
 
 // =====================================================
@@ -279,13 +271,13 @@ let checklist = loadChecklist();
 // =====================================================
 document.addEventListener('DOMContentLoaded', () => {
   initDate();
-  initTabs();
+  initBottomNav();
   renderHoy();
   renderManana();
   renderNightCalendar();
   renderTips();
   initServiceWorker();
-  startCircadianCycle(); // aplica tema + visibilidad
+  startCircadianCycle();
   initGrain();
   initHaloTouch();
   initThemeSystem();
@@ -303,10 +295,10 @@ function initDate() {
 }
 
 // =====================================================
-// TABS
+// BOTTOM NAV
 // =====================================================
-function initTabs() {
-  const btns = document.querySelectorAll('.tab-btn');
+function initBottomNav() {
+  const btns = document.querySelectorAll('.bottom-tab');
   let animating = false;
 
   btns.forEach(btn => {
@@ -379,13 +371,13 @@ function initScrollSpring() {
     if (info.top >= info.max - 60 && deltaY < 0) { applyStretch(deltaY * RESISTANCE); return; }
     if (currentStretch !== 0) releaseSpring();
   }, { passive: true });
-  app.addEventListener('touchend',   () => { isTouching = false; if (currentStretch !== 0) releaseSpring(); }, { passive: true });
-  app.addEventListener('touchcancel',() => { isTouching = false; releaseSpring(); }, { passive: true });
+  app.addEventListener('touchend',    () => { isTouching = false; if (currentStretch !== 0) releaseSpring(); }, { passive: true });
+  app.addEventListener('touchcancel', () => { isTouching = false; releaseSpring(); }, { passive: true });
 
   let wheelDebounce = null;
   window.addEventListener('wheel', e => {
     const info = getScrollInfo();
-    if (info.top <= 0 && e.deltaY < 0)           applyStretch( Math.abs(e.deltaY) * RESISTANCE * 0.6);
+    if (info.top <= 0 && e.deltaY < 0)                applyStretch( Math.abs(e.deltaY) * RESISTANCE * 0.6);
     else if (info.top >= info.max - 2 && e.deltaY > 0) applyStretch(-Math.abs(e.deltaY) * RESISTANCE * 0.6);
     clearTimeout(wheelDebounce);
     wheelDebounce = setTimeout(releaseSpring, 120);
@@ -401,7 +393,6 @@ function renderHoy() {
   document.getElementById('dayTitle').textContent  = DAYS[dow];
   renderMorningSteps('morningRoutine', season);
   renderNightToday(dow);
-  // La visibilidad se aplica después en applyCircadianCycle()
 }
 
 function renderMorningSteps(containerId, s) {
@@ -420,10 +411,10 @@ function renderNightToday(dow) {
   if (!container) return;
   const isOlay = schedule.type === 'olay';
   const steps = [
-    { label:'Limpieza',                                product: schedule.cleanser, icon:'🧇', color:'step-blue'                          },
+    { label:'Limpieza',                                 product: schedule.cleanser, icon:'🫧', color:'step-blue'                          },
     { label: isOlay ? 'Sérum — DESCANSO' : 'Sérum Cara', product: schedule.serum,    icon: isOlay ? '🚫' : '💪', color: isOlay ? 'step-purple' : 'step-green' },
-    { label:'Contorno Ojos',                           product: schedule.eyes,     icon:'👁',  color:'step-purple'                         },
-    { label:'Crema Final',                             product: schedule.cream,    icon:'🌙', color:'step-pink'                           },
+    { label:'Contorno Ojos',                            product: schedule.eyes,     icon:'👁',  color:'step-purple'                        },
+    { label:'Crema Final',                              product: schedule.cream,    icon:'🌙', color:'step-pink'                          },
   ];
   container.innerHTML = steps.map((step, i) =>
     stepCardHTML(step, i, `night-${i}`, !!checklist[`night-${i}`])
@@ -540,7 +531,7 @@ function renderNightCalendar() {
     return `<div class="night-row ${isOlay ? 'olay-night' : 'nia-night'}">
       <div class="night-day">${dayNames[i]}<span>${isOlay ? '✨ Noche Olay' : '💪 Niacinamida'}</span></div>
       <div class="night-steps">
-        <div class="night-step"><span class="night-step-label">🧇 Limpieza</span><span class="night-step-product">${s.cleanser}</span></div>
+        <div class="night-step"><span class="night-step-label">🫧 Limpieza</span><span class="night-step-product">${s.cleanser}</span></div>
         <div class="night-step"><span class="night-step-label">💊 Sérum</span><span class="night-step-product">${s.serum}</span></div>
         <div class="night-step"><span class="night-step-label">👁 Contorno</span><span class="night-step-product">${s.eyes}</span></div>
         <div class="night-step"><span class="night-step-label">🌙 Crema</span><span class="night-step-product">${s.cream}</span></div>
@@ -575,7 +566,6 @@ function initThemeSystem() {
     applyCircadianCycle();
   });
 
-  // Long press = resetear a automático
   let pressTimer;
   btn.addEventListener('pointerdown', () => {
     pressTimer = setTimeout(() => {
