@@ -12,10 +12,9 @@
 }
 
 /* ===================================================
-   DESIGN TOKENS — BASE (overridden by data-phase)
+   DESIGN TOKENS — BASE
    =================================================== */
 :root {
-  /* Circadian palette keys (set dynamically by JS) */
   --c-orb1: rgba(242,176,195,0.60);
   --c-orb2: rgba(196,218,251,0.50);
   --c-orb3: rgba(210,230,210,0.45);
@@ -23,17 +22,13 @@
   --c-text: #2A1F2D;
 
   /* ── Multi-Layer Glass Tokens ── */
-  /* Layer 1: base translúcida */
   --glass-base:         rgba(255,255,255,0.28);
   --glass-base-border:  rgba(255,255,255,0.35);
-  /* Layer 2: contenido */
   --glass-mid:          rgba(255,255,255,0.52);
   --glass-mid-border:   rgba(255,255,255,0.70);
-  /* Layer 3: superficie superior (botones, badges) */
   --glass-top:          rgba(255,255,255,0.82);
   --glass-top-border:   rgba(255,255,255,0.95);
 
-  /* Aliases usados en componentes */
   --glass-white:  var(--glass-mid);
   --glass-border: var(--glass-mid-border);
   --card-bg:      var(--glass-mid);
@@ -43,7 +38,7 @@
   --accent:       #C48A96;
   --accent-dark:  #9E6A75;
 
-  /* ── Rim Light (borde perimetral con degradado luz) ── */
+  /* ── Rim Light ── */
   --rim-light: linear-gradient(135deg,
     rgba(255,255,255,0.90) 0%,
     rgba(255,255,255,0.40) 30%,
@@ -51,10 +46,9 @@
     rgba(255,255,255,0.55) 100%
   );
 
-  /* ── Color Shadows (heredan color del icono) ── */
+  /* ── Color Shadows ── */
   --shadow-glass: 0 8px 48px rgba(180,130,150,0.14), inset 0 1px 0 rgba(255,255,255,0.90);
   --shadow-card:  0 4px 40px rgba(196,138,150,0.12);
-  /* Color shadows por tipo de paso */
   --shadow-pink:   0 8px 48px rgba(244,143,177,0.28), 0 2px 16px rgba(194,96,122,0.16);
   --shadow-purple: 0 8px 48px rgba(156,39,176,0.20),  0 2px 16px rgba(156,39,176,0.12);
   --shadow-gold:   0 8px 48px rgba(255,143,0,0.22),   0 2px 16px rgba(192,120,0,0.14);
@@ -67,8 +61,19 @@
   --safe-top: env(safe-area-inset-top, 44px);
   --safe-bottom: env(safe-area-inset-bottom, 34px);
 
-  --spring: cubic-bezier(0.22, 1, 0.36, 1);
-  --bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* ── Curvas Bézier Custom — PROHIBIDO ease-in ── */
+  /* Aterrizaje elegante: aceleración inicial fuerte, frenado suave */
+  --spring:        cubic-bezier(0.22, 1, 0.36, 1);
+  /* Overshoot controlado para elementos que "rebotan" */
+  --bounce:        cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Salida líquida: comienza rápido, se disuelve */
+  --liquid-out:    cubic-bezier(0.55, 0, 0.85, 0.06);
+  /* Entrada suave desde abajo (pestaña entrante) */
+  --liquid-in:     cubic-bezier(0.16, 1, 0.3, 1);
+  /* Resistencia de muelle: retroceso orgánico */
+  --spring-resist: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* Micro-interacción hover: respuesta inmediata */
+  --snap:          cubic-bezier(0.18, 0.89, 0.32, 1.12);
 
   /* Checklist */
   --done-bg:       rgba(46,125,50,0.08);
@@ -76,7 +81,7 @@
   --done-text:     rgba(42,31,45,0.40);
   --done-check-bg: rgba(46,125,50,0.90);
 
-  /* ── Tipografía Adaptativa: pesos variables por importancia ── */
+  /* ── Tipografía Adaptativa ── */
   --font-weight-hero:    760;
   --font-weight-title:   640;
   --font-weight-label:   580;
@@ -84,7 +89,7 @@
   --font-weight-muted:   360;
 }
 
-/* === PHASE: DAWN (06-10) — Rosa Cuarzo + Azul Bruma === */
+/* === PHASE: DAWN === */
 [data-phase="dawn"] {
   --text:       #2A1F2D;
   --text-muted: #9A8FA0;
@@ -109,7 +114,7 @@
   );
 }
 
-/* === PHASE: DAY (10-17) — Cian Cristalino + Oro Pálido === */
+/* === PHASE: DAY === */
 [data-phase="day"] {
   --text:       #0A1A2A;
   --text-muted: #7A8FA0;
@@ -135,7 +140,7 @@
   );
 }
 
-/* === PHASE: DUSK (17-21) — Ámbar + Malva === */
+/* === PHASE: DUSK === */
 [data-phase="dusk"] {
   --text:       #1A0A05;
   --text-muted: #9A7A6A;
@@ -160,7 +165,7 @@
   );
 }
 
-/* === PHASE: NIGHT (21-06) — Índigo Eléctrico + Obsidiana === */
+/* === PHASE: NIGHT === */
 [data-phase="night"] {
   --text:        #EDE8F5;
   --text-muted:  #7A7090;
@@ -195,7 +200,6 @@
   --shadow-green:  0 8px 48px rgba(50,160,80,0.28),  0 2px 16px rgba(40,140,60,0.16);
 }
 
-/* Manual dark override */
 [data-theme="night"] {
   --text:        #EDE8F5;
   --text-muted:  #7A7090;
@@ -229,13 +233,9 @@
    GRAIN CANVAS
    =================================================== */
 #grainCanvas {
-  position: fixed;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  opacity: 0.030;
-  mix-blend-mode: overlay;
-  width: 100%; height: 100%;
+  position: fixed; inset: 0; z-index: 2;
+  pointer-events: none; opacity: 0.030;
+  mix-blend-mode: overlay; width: 100%; height: 100%;
 }
 
 /* ===================================================
@@ -245,14 +245,11 @@
   position: fixed; inset: 0; z-index: 0; overflow: hidden;
   transition: background 4s var(--spring);
 }
-
 .orb {
   position: absolute; border-radius: 50%;
-  filter: blur(80px);
-  will-change: transform;
+  filter: blur(80px); will-change: transform;
   transition: top 8s var(--spring), left 8s var(--spring),
-              width 6s var(--spring), height 6s var(--spring),
-              background 4s ease;
+              width 6s var(--spring), height 6s var(--spring), background 4s ease;
 }
 .orb-1 { width:360px; height:360px; animation: floatOrb1 20s ease-in-out infinite; }
 .orb-2 { width:300px; height:300px; animation: floatOrb2 26s ease-in-out infinite; }
@@ -274,7 +271,6 @@
   40%     { transform: translate(25px,-35px) scale(1.05); }
   80%     { transform: translate(-15px,20px) scale(0.98); }
 }
-
 .orb-1.halo-touch {
   transition: top 0.6s var(--spring), left 0.6s var(--spring) !important;
 }
@@ -284,12 +280,9 @@
    =================================================== */
 html, body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-  background: transparent;
-  color: var(--text);
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  overscroll-behavior: none;
-  transition: color 3s ease;
+  background: transparent; color: var(--text);
+  min-height: 100vh; -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none; transition: color 3s ease;
 }
 #app {
   position: relative; z-index: 3;
@@ -298,35 +291,20 @@ html, body {
 }
 
 /* ===================================================
-   GLASS LAYER MIXIN — Pseudo-element base layer
+   GLASS LAYER MIXIN
    =================================================== */
-/* Clase utilitaria para capa base ultra-translúcida detrás del contenido */
-.glass-surface {
-  position: relative;
-  isolation: isolate;
-}
-/* Capa 1: base */
+.glass-surface { position: relative; isolation: isolate; }
 .glass-surface::before {
-  content: '';
-  position: absolute; inset: 0;
-  border-radius: inherit;
+  content: ''; position: absolute; inset: 0; border-radius: inherit;
   background: var(--glass-base);
   backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
   border: 1px solid var(--glass-base-border);
-  z-index: -2;
-  pointer-events: none;
+  z-index: -2; pointer-events: none;
 }
-/* Capa 3: rim light perimetral (degradado blanco simulando canto de cristal) */
 .glass-surface::after {
-  content: '';
-  position: absolute; inset: 0;
-  border-radius: inherit;
-  background: transparent;
-  border: 1px solid transparent;
-  border-image: var(--rim-light) 1;
-  z-index: -1;
-  pointer-events: none;
-  /* Fallback para navegadores sin border-image con degradado */
+  content: ''; position: absolute; inset: 0; border-radius: inherit;
+  background: transparent; border: 1px solid transparent;
+  border-image: var(--rim-light) 1; z-index: -1; pointer-events: none;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.82),
               inset 0 -1px 0 rgba(255,255,255,0.15),
               inset 1px 0 0 rgba(255,255,255,0.45),
@@ -342,56 +320,44 @@ html, body {
 }
 .header h1 {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 32px;
-  font-weight: var(--font-weight-hero);
+  font-size: 32px; font-weight: var(--font-weight-hero);
   font-variation-settings: 'wght' var(--font-weight-hero);
   color: var(--text); letter-spacing: -0.3px; line-height: 1.1;
   transition: color 3s ease;
 }
 .header-sub {
-  font-size: 13px;
-  font-weight: var(--font-weight-muted);
+  font-size: 13px; font-weight: var(--font-weight-muted);
   font-variation-settings: 'wght' var(--font-weight-muted);
-  letter-spacing: 0.6px;
-  color: var(--text-muted); margin-top: 5px; text-transform: capitalize;
-  transition: color 3s ease;
+  letter-spacing: 0.6px; color: var(--text-muted); margin-top: 5px;
+  text-transform: capitalize; transition: color 3s ease;
 }
 .circadian-label {
-  font-size: 10.5px;
-  font-weight: var(--font-weight-label);
+  font-size: 10.5px; font-weight: var(--font-weight-label);
   font-variation-settings: 'wght' var(--font-weight-label);
-  letter-spacing: 1.2px;
-  text-transform: uppercase; margin-top: 4px;
-  color: var(--accent); opacity: 0.85;
-  transition: color 3s ease;
+  letter-spacing: 1.2px; text-transform: uppercase; margin-top: 4px;
+  color: var(--accent); opacity: 0.85; transition: color 3s ease;
 }
-
-/* Theme toggle — glass-top layer */
 .theme-toggle {
   width: 44px; height: 44px; border-radius: 50%;
   background: var(--glass-top);
   backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
-  box-shadow: var(--shadow-glass),
-              inset 0 1px 0 var(--glass-top-border),
-              inset 0 -1px 0 rgba(255,255,255,0.10);
+  box-shadow: var(--shadow-glass), inset 0 1px 0 var(--glass-top-border), inset 0 -1px 0 rgba(255,255,255,0.10);
   cursor: pointer; font-size: 20px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; margin-top: 4px;
-  /* Rim light via outline/border */
-  border: 1px solid;
-  border-color: rgba(255,255,255,0.80);
+  border: 1px solid rgba(255,255,255,0.80);
   transition: transform 0.4s var(--spring), background 3s ease, border-color 3s ease;
   -webkit-user-select: none; user-select: none;
 }
 .theme-toggle:active { transform: scale(0.9); }
 
 /* ===================================================
-   TAB NAV — glass-mid con rim light
+   TAB NAV
    =================================================== */
 .tab-nav {
   display: flex; margin: 0 16px 8px;
   background: var(--glass-mid);
-  backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));;
+  backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
   border-radius: var(--radius);
   box-shadow: var(--shadow-glass),
               inset 0 1px 0 rgba(255,255,255,0.70),
@@ -399,23 +365,24 @@ html, body {
               inset 1px 0 0 rgba(255,255,255,0.35),
               inset -1px 0 0 rgba(255,255,255,0.15);
   border: 1px solid var(--glass-mid-border);
-  overflow: hidden;
-  position: sticky; top: 8px; z-index: 100;
+  overflow: hidden; position: sticky; top: 8px; z-index: 100;
   transition: background 3s ease, border-color 3s ease;
 }
 .tab-btn {
-  flex: 1; border: none; background: none;
-  padding: 13px 4px;
+  flex: 1; border: none; background: none; padding: 13px 4px;
   font-family: 'Inter', sans-serif; font-size: 11.5px;
   font-weight: var(--font-weight-label);
   font-variation-settings: 'wght' var(--font-weight-label);
   letter-spacing: 0.2px; color: var(--text-muted);
-  cursor: pointer; transition: color 0.25s, background 0.25s;
+  cursor: pointer;
+  /* Snap: micro-respuesta inmediata al tap */
+  transition: color 0.18s var(--snap), background 0.22s var(--spring),
+              transform 0.15s var(--snap);
   position: relative;
 }
+.tab-btn:active { transform: scale(0.94); }
 .tab-btn.active {
-  color: var(--accent-dark);
-  background: var(--glass-top);
+  color: var(--accent-dark); background: var(--glass-top);
   font-weight: var(--font-weight-title);
   font-variation-settings: 'wght' var(--font-weight-title);
 }
@@ -428,61 +395,136 @@ html, body {
 }
 
 /* ===================================================
-   TAB CONTENT + CASCADE
+   TAB CONTENT — Liquid State Transitions
+
+   Tres fases coordinadas:
+   1. tab-content saliente → "se derrite" (liquid-out): fade + scale-down + blur
+   2. tab-content entrante → "aterriza" (liquid-in): fade + translateY desde abajo
+   3. hijos en cascade con stagger incremental
    =================================================== */
-.tab-content { display: none; padding: 8px 16px 16px; }
-.tab-content.active { display: block; }
-.tab-content.active > * {
-  animation: cascadeIn 0.55s var(--spring) both;
+
+/* Estado base: oculto sin display:none para poder animar salida */
+.tab-content {
+  padding: 8px 16px 16px;
+  /* Por defecto invisible pero en flujo — JS maneja display */
+  display: none;
+  /* Contexto de apilamiento para el blur de salida */
+  position: relative;
 }
-.tab-content.active > *:nth-child(1) { animation-delay: 0.04s; }
-.tab-content.active > *:nth-child(2) { animation-delay: 0.10s; }
-.tab-content.active > *:nth-child(3) { animation-delay: 0.16s; }
-.tab-content.active > *:nth-child(4) { animation-delay: 0.22s; }
-.tab-content.active > *:nth-child(5) { animation-delay: 0.28s; }
-.tab-content.active > *:nth-child(6) { animation-delay: 0.34s; }
+
+/* Entrante: aterriza desde abajo */
+.tab-content.active {
+  display: block;
+  animation: tabLiquidIn 0.52s var(--liquid-in) both;
+  transform-origin: top center;
+}
+
+/* Saliente: se disuelve hacia arriba — clase añadida por JS */
+.tab-content.tab-leaving {
+  display: block !important;
+  pointer-events: none;
+  animation: tabLiquidOut 0.28s var(--liquid-out) both;
+  position: absolute; inset: 0;
+  transform-origin: top center;
+  z-index: 0;
+}
+
+@keyframes tabLiquidIn {
+  0%   { opacity: 0; transform: translateY(28px) scale(0.97); filter: blur(3px); }
+  60%  { filter: blur(0px); }
+  100% { opacity: 1; transform: translateY(0) scale(1);  filter: blur(0px); }
+}
+
+@keyframes tabLiquidOut {
+  0%   { opacity: 1; transform: translateY(0) scale(1);    filter: blur(0px); }
+  100% { opacity: 0; transform: translateY(-16px) scale(0.96); filter: blur(4px); }
+}
+
+/* ── Staggered cascade para hijos — entrada coordinada ── */
+.tab-content.active > * {
+  animation: cascadeIn 0.50s var(--liquid-in) both;
+  /* Opacity inicial 0 requerida para stagger */
+}
+.tab-content.active > *:nth-child(1)  { animation-delay: 0.06s; }
+.tab-content.active > *:nth-child(2)  { animation-delay: 0.13s; }
+.tab-content.active > *:nth-child(3)  { animation-delay: 0.19s; }
+.tab-content.active > *:nth-child(4)  { animation-delay: 0.25s; }
+.tab-content.active > *:nth-child(5)  { animation-delay: 0.31s; }
+.tab-content.active > *:nth-child(6)  { animation-delay: 0.36s; }
+.tab-content.active > *:nth-child(7)  { animation-delay: 0.40s; }
+.tab-content.active > *:nth-child(8)  { animation-delay: 0.44s; }
+
 @keyframes cascadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+/* ── Wrapping container para animación de salida ── */
+.tab-wrapper {
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
 }
 
 /* ===================================================
-   DAY HERO CARD — 3 capas de glass
+   SCROLL SPRING RESISTANCE
+   Efecto muelle en el límite del scroll:
+   al llegar al final, los cards del último grupo
+   se comprimen levemente, indicando el límite.
+   =================================================== */
+
+/* Estado base de resistencia — controlado por JS vía CSS variable */
+#app {
+  --scroll-stretch: 0;
+  transform: translateY(calc(var(--scroll-stretch) * 1px));
+  transition: transform 0.45s var(--spring-resist);
+}
+
+/* Cuando el muelle está activo: transición inmediata (resistencia),
+   luego retroceso suave (spring-resist) */
+#app.spring-active {
+  transition: transform 0.12s var(--spring-resist);
+}
+#app.spring-release {
+  transition: transform 0.55s var(--spring);
+}
+
+/* Indicador visual de límite: los últimos elementos se comprimen */
+.routine-list.at-bottom .step-card:last-child,
+.tips-list.at-bottom    .tip-card:last-child,
+.night-calendar.at-bottom .night-row:last-child {
+  transform: scaleY(var(--card-squeeze, 1)) scaleX(var(--card-squeeze-x, 1));
+  transform-origin: center bottom;
+  transition: transform 0.18s var(--spring-resist);
+}
+
+/* ===================================================
+   DAY HERO CARD
    =================================================== */
 .day-card {
-  /* Capa 2 (contenido) */
   background: var(--glass-mid);
   backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
   border-radius: var(--radius); padding: 28px 24px;
   color: var(--text); margin-bottom: 20px;
   position: relative; overflow: hidden;
-  /* Color shadow heredando acento */
-  box-shadow: var(--shadow-glass), var(--shadow-card);
-  transition: background 3s ease, border-color 3s ease, box-shadow 3s ease;
-  /* Rim light: borde con degradado blanco */
   border: 1px solid transparent;
-  /* Polyfill rim con box-shadow interior */
   box-shadow: var(--shadow-glass), var(--shadow-card),
               inset 0 1.5px 0 rgba(255,255,255,0.88),
               inset 0 -1px 0 rgba(255,255,255,0.14),
               inset 1.5px 0 0 rgba(255,255,255,0.48),
               inset -1px 0 0 rgba(255,255,255,0.18);
+  transition: background 3s ease, border-color 3s ease, box-shadow 3s ease;
 }
-/* Capa 1: base ultra-translúcida superpuesta */
 .day-card::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: var(--glass-base);
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 0;
+  content: ''; position: absolute; inset: 0;
+  background: var(--glass-base); border-radius: inherit;
+  pointer-events: none; z-index: 0;
 }
 .day-card > * { position: relative; z-index: 1; }
 
 .day-card h2 {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 28px;
-  font-weight: var(--font-weight-hero);
+  font-size: 28px; font-weight: var(--font-weight-hero);
   font-variation-settings: 'wght' var(--font-weight-hero);
   letter-spacing: -0.2px;
 }
@@ -492,22 +534,17 @@ html, body {
   font-variation-settings: 'wght' var(--font-weight-body);
   letter-spacing: 0.3px;
 }
-
-/* Day badge — glass-top (capa superior ultra-brillante) */
 .day-badge {
   display: inline-block;
   background: var(--glass-top);
   border: 1px solid var(--glass-top-border);
-  box-shadow: 0 2px 12px rgba(255,255,255,0.35),
-              inset 0 1px 0 rgba(255,255,255,0.95);
+  box-shadow: 0 2px 12px rgba(255,255,255,0.35), inset 0 1px 0 rgba(255,255,255,0.95);
   border-radius: 20px; padding: 4px 14px;
-  font-size: 11px;
-  font-weight: var(--font-weight-title);
+  font-size: 11px; font-weight: var(--font-weight-title);
   font-variation-settings: 'wght' var(--font-weight-title);
-  letter-spacing: 1px;
-  margin-bottom: 12px; text-transform: uppercase; backdrop-filter: blur(4px);
+  letter-spacing: 1px; margin-bottom: 12px;
+  text-transform: uppercase; backdrop-filter: blur(4px);
 }
-
 .card-glow-overlay {
   position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
   background: radial-gradient(circle 120px at 50% 50%, rgba(255,255,255,0.18), transparent 70%);
@@ -516,67 +553,55 @@ html, body {
 .day-card:hover .card-glow-overlay { opacity: 1; }
 
 /* ===================================================
-   SECTION TITLES — peso adaptativo
+   SECTION TITLES
    =================================================== */
 .section-title {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 16px;
-  font-weight: var(--font-weight-title);
+  font-size: 16px; font-weight: var(--font-weight-title);
   font-variation-settings: 'wght' var(--font-weight-title);
-  color: var(--text);
-  margin: 22px 0 12px; letter-spacing: 0.1px;
+  color: var(--text); margin: 22px 0 12px; letter-spacing: 0.1px;
   transition: color 3s ease;
 }
 .section-header { margin-bottom: 20px; }
 .section-header h2 {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 24px;
-  font-weight: var(--font-weight-hero);
+  font-size: 24px; font-weight: var(--font-weight-hero);
   font-variation-settings: 'wght' var(--font-weight-hero);
   color: var(--text);
 }
 .section-header p {
-  font-size: 13px; color: var(--text-muted); margin-top: 4px; letter-spacing: 0.3px;
-  font-weight: var(--font-weight-muted);
+  font-size: 13px; color: var(--text-muted); margin-top: 4px;
+  letter-spacing: 0.3px; font-weight: var(--font-weight-muted);
   font-variation-settings: 'wght' var(--font-weight-muted);
 }
 
 /* ===================================================
-   STEP CARDS — Multi-Layer Glassmorphism + Color Shadows
+   STEP CARDS — Multi-Layer Glass + Color Shadows
    =================================================== */
 .routine-list { display: flex; flex-direction: column; gap: 10px; }
 
 .step-card {
-  /* Capa 2: contenido */
   background: var(--glass-mid);
   backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
-  border-radius: var(--radius);
-  padding: 16px;
+  border-radius: var(--radius); padding: 16px;
   display: flex; align-items: flex-start; gap: 14px;
   position: relative; overflow: hidden; cursor: pointer;
-  /* Rim light via inset shadows */
   box-shadow: var(--shadow-card),
               inset 0 1.5px 0 rgba(255,255,255,0.80),
               inset 0 -1px 0 rgba(255,255,255,0.10),
               inset 1.5px 0 0 rgba(255,255,255,0.42),
               inset -1px 0 0 rgba(255,255,255,0.16);
   border: 1px solid var(--glass-mid-border);
-  transition: transform 0.4s var(--spring), box-shadow 0.3s,
+  transition: transform 0.38s var(--spring), box-shadow 0.28s var(--spring),
               background 3s ease, border-color 3s ease, opacity 0.4s var(--spring);
   will-change: transform;
   -webkit-tap-highlight-color: transparent;
 }
-
-/* Capa 1: base ultra-translúcida */
 .step-card::before {
-  content: '';
-  position: absolute; inset: 0; border-radius: inherit;
-  background: var(--glass-base);
-  pointer-events: none; z-index: 0;
+  content: ''; position: absolute; inset: 0; border-radius: inherit;
+  background: var(--glass-base); pointer-events: none; z-index: 0;
   transition: background 3s ease;
 }
-
-/* Hover glow overlay */
 .step-card::after {
   content: ''; position: absolute; inset: 0; border-radius: inherit;
   pointer-events: none;
@@ -584,19 +609,17 @@ html, body {
   opacity: 0; transition: opacity 0.25s; z-index: 1;
 }
 .step-card > * { position: relative; z-index: 2; }
+.step-card:hover { transform: translateY(-2px); }
 .step-card:hover::after { opacity: 1; }
-.step-card:active, .step-card.completing {
-  transform: scale(0.97);
-}
+.step-card:active, .step-card.completing { transform: scale(0.97); }
 
-/* Color Shadows — heredan color del icono del paso */
+/* Color Shadows */
 .step-pink   { box-shadow: var(--shadow-pink),   inset 0 1.5px 0 rgba(255,255,255,0.80), inset 0 -1px 0 rgba(255,255,255,0.10), inset 1.5px 0 0 rgba(255,255,255,0.42), inset -1px 0 0 rgba(255,255,255,0.16); }
 .step-purple { box-shadow: var(--shadow-purple),  inset 0 1.5px 0 rgba(255,255,255,0.80), inset 0 -1px 0 rgba(255,255,255,0.10), inset 1.5px 0 0 rgba(255,255,255,0.42), inset -1px 0 0 rgba(255,255,255,0.16); }
 .step-gold   { box-shadow: var(--shadow-gold),    inset 0 1.5px 0 rgba(255,255,255,0.80), inset 0 -1px 0 rgba(255,255,255,0.10), inset 1.5px 0 0 rgba(255,255,255,0.42), inset -1px 0 0 rgba(255,255,255,0.16); }
 .step-blue   { box-shadow: var(--shadow-blue),    inset 0 1.5px 0 rgba(255,255,255,0.80), inset 0 -1px 0 rgba(255,255,255,0.10), inset 1.5px 0 0 rgba(255,255,255,0.42), inset -1px 0 0 rgba(255,255,255,0.16); }
 .step-green  { box-shadow: var(--shadow-green),   inset 0 1.5px 0 rgba(255,255,255,0.80), inset 0 -1px 0 rgba(255,255,255,0.10), inset 1.5px 0 0 rgba(255,255,255,0.42), inset -1px 0 0 rgba(255,255,255,0.16); }
 
-/* SPF card golden highlight in day phase */
 [data-phase="day"] .step-gold {
   border-color: rgba(220,180,60,0.55);
   box-shadow: var(--shadow-gold),
@@ -607,10 +630,8 @@ html, body {
 
 /* COMPLETED STATE */
 .step-card.completed {
-  background: var(--done-bg);
-  border-color: var(--done-border);
-  box-shadow: 0 2px 12px rgba(46,125,50,0.10),
-              inset 0 0 0 1px rgba(46,125,50,0.15);
+  background: var(--done-bg); border-color: var(--done-border);
+  box-shadow: 0 2px 12px rgba(46,125,50,0.10), inset 0 0 0 1px rgba(46,125,50,0.15);
   opacity: 0.72;
   animation: completedIn 0.45s var(--spring) both;
 }
@@ -626,8 +647,7 @@ html, body {
   font-size: 13px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
   animation: fadeCheck 0.35s var(--bounce) both;
-  box-shadow: 0 2px 8px rgba(46,125,50,0.3);
-  z-index: 3;
+  box-shadow: 0 2px 8px rgba(46,125,50,0.3); z-index: 3;
 }
 
 @keyframes completedIn {
@@ -639,7 +659,7 @@ html, body {
   to   { opacity: 1; transform: scale(1) rotate(0deg); }
 }
 
-/* STEP ELEMENTS — Tipografía adaptativa */
+/* STEP ELEMENTS */
 .step-number {
   width: 38px; height: 38px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
@@ -647,29 +667,27 @@ html, body {
   font-weight: var(--font-weight-title);
   font-variation-settings: 'wght' var(--font-weight-title);
   backdrop-filter: blur(4px);
-  /* Sombra difusa color heredada — aplicada por clase de color */
   filter: drop-shadow(0 4px 12px currentColor);
 }
 .step-info { flex: 1; }
 .step-label  {
-  font-size: 10.5px;
-  font-weight: var(--font-weight-label);
+  font-size: 10.5px; font-weight: var(--font-weight-label);
   font-variation-settings: 'wght' var(--font-weight-label);
-  text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 3px;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--text-muted); margin-bottom: 3px;
 }
-.step-product{
-  font-size: 15px;
-  font-weight: var(--font-weight-title);
+.step-product {
+  font-size: 15px; font-weight: var(--font-weight-title);
   font-variation-settings: 'wght' var(--font-weight-title);
-  color: var(--text); margin-bottom: 4px; letter-spacing: -0.1px; transition: color 0.3s;
+  color: var(--text); margin-bottom: 4px; letter-spacing: -0.1px;
+  transition: color 0.3s;
 }
-.step-note   {
+.step-note {
   font-size: 12px; color: var(--text-muted); line-height: 1.5;
   font-weight: var(--font-weight-body);
   font-variation-settings: 'wght' var(--font-weight-body);
 }
 
-/* Color circles with colored diffuse shadow */
 .step-pink   .step-number { background: rgba(244,143,177,0.25); color: #C2607A; filter: drop-shadow(0 6px 16px rgba(194,96,122,0.35)); }
 .step-purple .step-number { background: rgba(156,39,176,0.15);  color: #9C27B0; filter: drop-shadow(0 6px 16px rgba(156,39,176,0.30)); }
 .step-gold   .step-number { background: rgba(255,143,0,0.18);   color: #C07800; filter: drop-shadow(0 6px 16px rgba(192,120,0,0.32)); }
@@ -688,12 +706,11 @@ html, body {
 [data-theme="night"] .step-green .step-number { background: rgba(50,140,80,0.3);   color: #80C890; filter: drop-shadow(0 6px 20px rgba(128,200,144,0.40)); }
 
 /* ===================================================
-   SEASON TOGGLE — glass-top para botón activo
+   SEASON TOGGLE
    =================================================== */
 .season-toggle { display: flex; align-items: center; gap: 10px; margin: 14px 0; font-size: 13px; font-weight: 500; color: var(--text-muted); }
 .toggle-group {
-  display: flex;
-  background: var(--glass-base);
+  display: flex; background: var(--glass-base);
   backdrop-filter: blur(8px);
   border: 1px solid var(--glass-mid-border); border-radius: 20px;
   padding: 3px; gap: 2px;
@@ -704,19 +721,16 @@ html, body {
 [data-theme="night"] .toggle-group { background: rgba(40,30,70,0.5); }
 .toggle-btn {
   border: none; background: none; padding: 6px 14px; border-radius: 17px;
-  font-size: 12px;
-  font-weight: var(--font-weight-body);
+  font-size: 12px; font-weight: var(--font-weight-body);
   font-variation-settings: 'wght' var(--font-weight-body);
-  cursor: pointer; color: var(--text-muted); transition: all 0.3s var(--spring);
+  cursor: pointer; color: var(--text-muted);
+  transition: all 0.28s var(--spring);
 }
-/* Botón activo — glass-top ultra-brillante */
 .toggle-btn.active {
-  background: var(--glass-top);
-  color: var(--accent-dark);
+  background: var(--glass-top); color: var(--accent-dark);
   font-weight: var(--font-weight-title);
   font-variation-settings: 'wght' var(--font-weight-title);
-  box-shadow: 0 2px 12px rgba(180,130,150,0.18),
-              inset 0 1px 0 var(--glass-top-border);
+  box-shadow: 0 2px 12px rgba(180,130,150,0.18), inset 0 1px 0 var(--glass-top-border);
   border: 1px solid var(--glass-top-border);
 }
 [data-phase="night"] .toggle-btn.active,
@@ -729,10 +743,9 @@ html, body {
   background: rgba(255,248,225,0.80); backdrop-filter: blur(8px);
   border: 1.5px solid rgba(255,200,80,0.40); border-radius: var(--radius-sm);
   padding: 14px 16px; margin-top: 16px; font-size: 13px; line-height: 1.6; display: none;
-  box-shadow: 0 4px 40px rgba(255,200,80,0.14),
-              inset 0 1px 0 rgba(255,255,255,0.70);
+  box-shadow: 0 4px 40px rgba(255,200,80,0.14), inset 0 1px 0 rgba(255,255,255,0.70);
 }
-.alert-box.show { display: block; }
+.alert-box.show { display: block; animation: cascadeIn 0.4s var(--liquid-in) both; }
 .alert-box strong {
   color: #B07800; display: block; margin-bottom: 4px; font-size: 14px;
   font-weight: var(--font-weight-title);
@@ -756,19 +769,17 @@ html, body {
               inset 0 1.5px 0 rgba(255,255,255,0.72),
               inset 0 -1px 0 rgba(255,255,255,0.12),
               inset 1.5px 0 0 rgba(255,255,255,0.38);
-  transition: background 3s ease, border-color 3s ease;
+  transition: background 3s ease, border-color 3s ease,
+              transform 0.38s var(--spring);
 }
+.night-row:hover { transform: translateY(-2px); }
 .night-row.olay-night {
   border-left: 3px solid rgba(200,140,40,0.6);
-  box-shadow: var(--shadow-gold),
-              inset 0 1.5px 0 rgba(255,255,255,0.72),
-              inset 1.5px 0 0 rgba(255,255,255,0.38);
+  box-shadow: var(--shadow-gold), inset 0 1.5px 0 rgba(255,255,255,0.72), inset 1.5px 0 0 rgba(255,255,255,0.38);
 }
 .night-row.nia-night  {
   border-left: 3px solid rgba(46,125,50,0.6);
-  box-shadow: var(--shadow-green),
-              inset 0 1.5px 0 rgba(255,255,255,0.72),
-              inset 1.5px 0 0 rgba(255,255,255,0.38);
+  box-shadow: var(--shadow-green), inset 0 1.5px 0 rgba(255,255,255,0.72), inset 1.5px 0 0 rgba(255,255,255,0.38);
 }
 .night-day {
   font-family: 'Playfair Display', serif; font-size: 14px;
@@ -790,7 +801,7 @@ html, body {
 }
 
 /* ===================================================
-   TIPS — color shadow por icono
+   TIPS
    =================================================== */
 .tips-list { display: flex; flex-direction: column; gap: 12px; }
 .tip-card {
@@ -803,12 +814,12 @@ html, body {
               inset 0 -1px 0 rgba(255,255,255,0.10),
               inset 1.5px 0 0 rgba(255,255,255,0.38);
   display: flex; gap: 14px; align-items: flex-start;
-  transition: transform 0.4s var(--spring), background 3s ease;
+  transition: transform 0.38s var(--spring), background 3s ease;
 }
+.tip-card:hover  { transform: translateY(-2px); }
 .tip-card:active { transform: scale(0.98); }
 .tip-icon {
   font-size: 24px; flex-shrink: 0; margin-top: 2px;
-  /* Sombra difusa coloreada del icono */
   filter: drop-shadow(0 8px 20px currentColor);
 }
 .tip-content h3 {
@@ -824,7 +835,7 @@ html, body {
 }
 
 /* ===================================================
-   INSTALL BANNER — glass-mid + rim light
+   INSTALL BANNER
    =================================================== */
 #installBanner {
   display: none; position: fixed;
@@ -832,10 +843,8 @@ html, body {
   background: var(--glass-mid); backdrop-filter: blur(var(--blur));
   border: 1px solid var(--glass-mid-border); color: var(--text);
   border-radius: var(--radius); padding: 16px 20px;
-  box-shadow: var(--shadow-glass),
-              inset 0 1.5px 0 rgba(255,255,255,0.72);
-  z-index: 999;
-  align-items: center; gap: 12px; font-size: 13px;
+  box-shadow: var(--shadow-glass), inset 0 1.5px 0 rgba(255,255,255,0.72);
+  z-index: 999; align-items: center; gap: 12px; font-size: 13px;
 }
 #installBanner.hidden { display: none !important; }
 #installBanner .install-text { flex: 1; }
@@ -844,13 +853,10 @@ html, body {
   font-weight: var(--font-weight-title);
   font-variation-settings: 'wght' var(--font-weight-title);
 }
-/* Botón install — glass-top ultra-brillante */
 #installBtn {
-  background: var(--glass-top);
-  color: var(--accent-dark);
+  background: var(--glass-top); color: var(--accent-dark);
   border: 1px solid var(--glass-top-border);
-  box-shadow: 0 2px 16px rgba(180,130,150,0.22),
-              inset 0 1px 0 rgba(255,255,255,0.95);
+  box-shadow: 0 2px 16px rgba(180,130,150,0.22), inset 0 1px 0 rgba(255,255,255,0.95);
   border-radius: 20px; padding: 8px 16px;
   font-weight: var(--font-weight-title);
   font-variation-settings: 'wght' var(--font-weight-title);
