@@ -13,32 +13,14 @@ const LS_CHECKLIST    = 'tg_checklist';
 // =====================================================
 // CIRCADIAN COLOR ENGINE
 // =====================================================
-
-/**
- * Returns a value 0-1439 representing the minute of day.
- */
 function minuteOfDay() {
   const now = new Date();
   return now.getHours() * 60 + now.getMinutes();
 }
-
-/**
- * LERP between two values.
- */
 function lerp(a, b, t) { return a + (b - a) * t; }
-
-/**
- * Smooth step for easing transitions between keyframes.
- */
 function smoothstep(t) { return t * t * (3 - 2 * t); }
 
-/**
- * Circadian phase definition.
- * Each phase has: start minute, end minute, label, icon,
- * orb colors (HSL strings), bg color, aura positions.
- */
 const PHASES = [
-  // Dawn: 06:00 – 10:00
   {
     id: 'dawn', label: 'Amanecer — Activación', icon: '🌅',
     start: 360, end: 600,
@@ -46,13 +28,11 @@ const PHASES = [
     orb1: 'radial-gradient(circle, hsla(340,70%,82%,0.65), transparent 70%)',
     orb2: 'radial-gradient(circle, hsla(210,70%,88%,0.55), transparent 70%)',
     orb3: 'radial-gradient(circle, hsla(270,50%,90%,0.45), transparent 70%)',
-    // Aura rises from bottom (sun at horizon)
     pos1: { top:'60%',  left:'-80px'  },
     pos2: { top:'70%',  right:'-60px' },
     pos3: { top:'80%',  left:'30%'    },
     metaColor: '#FFF0F5',
   },
-  // Day: 10:00 – 17:00
   {
     id: 'day', label: 'Día Pleno — Protección', icon: '☀️',
     start: 600, end: 1020,
@@ -60,13 +40,11 @@ const PHASES = [
     orb1: 'radial-gradient(circle, hsla(205,75%,80%,0.60), transparent 70%)',
     orb2: 'radial-gradient(circle, hsla(45,80%,88%,0.55),  transparent 70%)',
     orb3: 'radial-gradient(circle, hsla(185,60%,88%,0.45), transparent 70%)',
-    // Aura centered high (sun zenith)
     pos1: { top:'-60px', left:'20%'    },
     pos2: { top:'20%',   right:'-80px' },
     pos3: { top:'40%',   left:'-60px'  },
     metaColor: '#F0F8FF',
   },
-  // Dusk: 17:00 – 21:00
   {
     id: 'dusk', label: 'Hora Dorada — Transición', icon: '🌇',
     start: 1020, end: 1260,
@@ -74,21 +52,18 @@ const PHASES = [
     orb1: 'radial-gradient(circle, hsla(25,85%,70%,0.65),  transparent 70%)',
     orb2: 'radial-gradient(circle, hsla(300,50%,75%,0.55), transparent 70%)',
     orb3: 'radial-gradient(circle, hsla(0,70%,75%,0.45),   transparent 70%)',
-    // Aura horizontal (sun on the horizon, like La Caleta)
     pos1: { top:'40%', left:'-80px'  },
     pos2: { top:'35%', right:'-60px' },
     pos3: { top:'55%', left:'25%'    },
     metaColor: '#FFF0E5',
   },
-  // Night: 21:00 – 06:00 (1260-360 wraps)
   {
     id: 'night', label: 'Medianoche — Reparación', icon: '🌌',
-    start: 1260, end: 360, // wraps midnight
+    start: 1260, end: 360,
     bg:   'hsl(240, 30%, 8%)',
     orb1: 'radial-gradient(circle, hsla(260,60%,35%,0.75), transparent 70%)',
     orb2: 'radial-gradient(circle, hsla(240,50%,25%,0.65), transparent 70%)',
     orb3: 'radial-gradient(circle, hsla(280,45%,30%,0.55), transparent 70%)',
-    // Aura at top (deep sky)
     pos1: { top:'-80px', left:'10%'    },
     pos2: { top:'-60px', right:'10%'   },
     pos3: { top:'15%',   left:'35%'    },
@@ -96,23 +71,15 @@ const PHASES = [
   },
 ];
 
-/**
- * Determine current phase from minute of day.
- */
 function getPhase(min) {
-  if (min >= 360  && min < 600)  return PHASES[0]; // dawn
-  if (min >= 600  && min < 1020) return PHASES[1]; // day
-  if (min >= 1020 && min < 1260) return PHASES[2]; // dusk
-  return PHASES[3]; // night
+  if (min >= 360  && min < 600)  return PHASES[0];
+  if (min >= 600  && min < 1020) return PHASES[1];
+  if (min >= 1020 && min < 1260) return PHASES[2];
+  return PHASES[3];
 }
-
-/**
- * Progress 0-1 within the current phase.
- */
 function phaseProgress(min) {
   const p = getPhase(min);
   if (p.id === 'night') {
-    // Night wraps: 1260-1440 + 0-360 = 540 min total
     const rel = min >= 1260 ? min - 1260 : min + 180;
     return Math.min(rel / 540, 1);
   }
@@ -128,27 +95,20 @@ function applyCircadianCycle() {
   const min     = minuteOfDay();
   const phase   = getPhase(min);
   const html    = document.documentElement;
-
-  // Respect manual dark override
   const manualThemeLS = localStorage.getItem(LS_THEME_MANUAL);
   const systemDark    = window.matchMedia('(prefers-color-scheme: dark)').matches;
   const forceDark     = manualThemeLS === 'night' || (!manualThemeLS && systemDark);
 
-  // Set data-phase (drives CSS tokens)
   html.setAttribute('data-phase', phase.id);
-
-  // Set data-theme for night/day binary override
   if (forceDark) {
     html.setAttribute('data-theme', 'night');
   } else {
     html.setAttribute('data-theme', phase.id === 'night' ? 'night' : 'day');
   }
 
-  // Update aura background
   const auraBg = document.getElementById('auraBg');
   if (auraBg) auraBg.style.background = phase.bg;
 
-  // Update orb colors and positions
   const orb1 = document.getElementById('orb1');
   const orb2 = document.getElementById('orb2');
   const orb3 = document.getElementById('orb3');
@@ -171,15 +131,10 @@ function applyCircadianCycle() {
     if (phase.pos3.right) { orb3.style.right = phase.pos3.right; orb3.style.left  = ''; }
   }
 
-  // Update circadian label
   const label = document.getElementById('circadianLabel');
   if (label) label.textContent = `${phase.icon} ${phase.label}`;
-
-  // Update meta theme-color
   const metaColor = document.getElementById('metaThemeColor');
   if (metaColor) metaColor.setAttribute('content', forceDark ? '#0F0E1A' : phase.metaColor);
-
-  // Update theme toggle icon
   const icon = document.querySelector('.theme-icon');
   if (icon) {
     if (phase.id === 'night' || forceDark) icon.textContent = '☀️';
@@ -187,12 +142,8 @@ function applyCircadianCycle() {
   }
 }
 
-/**
- * Start live cycle — re-evaluates every 60 seconds.
- */
 function startCircadianCycle() {
   applyCircadianCycle();
-  // Align to next full minute
   const now  = new Date();
   const msToNextMin = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
   setTimeout(() => {
@@ -202,73 +153,57 @@ function startCircadianCycle() {
 }
 
 // =====================================================
-// GRAIN CANVAS (cinematic noise, eliminates banding)
+// GRAIN CANVAS
 // =====================================================
 function initGrain() {
   const canvas = document.getElementById('grainCanvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-
   function resize() {
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
     drawGrain();
   }
-
   function drawGrain() {
     const w = canvas.width, h = canvas.height;
-    // Use a static noise pattern — regenerate only on resize
     const imageData = ctx.createImageData(w, h);
     const data = imageData.data;
     for (let i = 0; i < data.length; i += 4) {
       const v = (Math.random() * 255) | 0;
-      data[i]     = v;
-      data[i + 1] = v;
-      data[i + 2] = v;
+      data[i] = data[i+1] = data[i+2] = v;
       data[i + 3] = 255;
     }
     ctx.putImageData(imageData, 0, 0);
   }
-
   resize();
   window.addEventListener('resize', resize, { passive: true });
 }
 
 // =====================================================
-// HALO TOUCH (orb-1 follows finger)
+// HALO TOUCH
 // =====================================================
 function initHaloTouch() {
   const orb1 = document.getElementById('orb1');
   if (!orb1) return;
   let haloTimer;
-
   function onTouch(cx, cy) {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    // Convert touch position to % of screen, offset by half orb size
     const orbW = orb1.offsetWidth  || 360;
     const orbH = orb1.offsetHeight || 360;
-    const topPx  = cy - orbH / 2;
-    const leftPx = cx - orbW / 2;
     orb1.classList.add('halo-touch');
-    orb1.style.top   = `${topPx}px`;
-    orb1.style.left  = `${leftPx}px`;
+    orb1.style.top   = `${cy - orbH / 2}px`;
+    orb1.style.left  = `${cx - orbW / 2}px`;
     orb1.style.right = '';
     clearTimeout(haloTimer);
-    // Return to phase position after 3 seconds of inactivity
     haloTimer = setTimeout(() => {
       orb1.classList.remove('halo-touch');
       applyCircadianCycle();
     }, 3000);
   }
-
   document.addEventListener('touchmove', e => {
     const t = e.touches[0];
     onTouch(t.clientX, t.clientY);
   }, { passive: true });
-
   document.addEventListener('mousemove', e => {
-    // Only on desktop hover; mobile uses touchmove
     if (e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents) return;
     onTouch(e.clientX, e.clientY);
   });
@@ -343,11 +278,12 @@ document.addEventListener('DOMContentLoaded', () => {
   renderNightCalendar();
   renderTips();
   initServiceWorker();
-  startCircadianCycle();   // 🌏 Circadian engine
-  initGrain();             // 🎥 Cinematic grain
-  initHaloTouch();         // 💡 Tactile halo
-  initThemeSystem();       // 🌙 Theme toggle + system sync
-  initGlowTracking();      // ✨ Glow tracking
+  startCircadianCycle();
+  initGrain();
+  initHaloTouch();
+  initThemeSystem();
+  initGlowTracking();
+  initScrollSpring();   // 🌊 Scroll spring resistance
 });
 
 // =====================================================
@@ -360,17 +296,173 @@ function initDate() {
 }
 
 // =====================================================
-// TABS
+// TABS — Liquid State Transitions
+// Tres fases coordinadas:
+//  1. La pestaña saliente obtiene clase 'tab-leaving' → animación tabLiquidOut
+//  2. Tras la animación de salida, se oculta y se muestra la entrante
+//  3. La pestaña entrante recibe clase 'active' → tabLiquidIn + stagger cascade
 // =====================================================
 function initTabs() {
-  document.querySelectorAll('.tab-btn').forEach(btn => {
+  const btns     = document.querySelectorAll('.tab-btn');
+  const contents = document.querySelectorAll('.tab-content');
+  let   animating = false;
+
+  btns.forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      if (animating) return;
+
+      const targetId  = 'tab-' + btn.dataset.tab;
+      const current   = document.querySelector('.tab-content.active');
+      const target    = document.getElementById(targetId);
+
+      // Si ya es la activa, no hacer nada
+      if (current === target) return;
+
+      animating = true;
+
+      // — Actualizar botones de nav
+      btns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+
+      // — FASE 1: Animar salida de la pestaña actual
+      if (current) {
+        current.classList.add('tab-leaving');
+        current.classList.remove('active');
+
+        // Esperar la duración de tabLiquidOut (280ms)
+        const OUT_DURATION = 280;
+        setTimeout(() => {
+          current.classList.remove('tab-leaving');
+          current.style.display = 'none';
+
+          // — FASE 2: Mostrar y animar entrada de la nueva pestaña
+          target.style.display = 'block';
+          // Forzar reflow para que la animación arranque desde cero
+          void target.offsetHeight;
+          target.classList.add('active');
+
+          animating = false;
+        }, OUT_DURATION);
+      } else {
+        // Primer render: no hay saliente
+        target.style.display = 'block';
+        void target.offsetHeight;
+        target.classList.add('active');
+        animating = false;
+      }
     });
   });
+}
+
+// =====================================================
+// SCROLL SPRING RESISTANCE
+// Efecto muelle orgánico al llegar al límite del scroll.
+// — Top boundary: estira el app hacia abajo (positivo)
+// — Bottom boundary: comprime el app hacia arriba (negativo)
+// El gesto transmite resistencia: cuanto más tiras, más responde,
+// pero al soltar retrocede con cubic-bezier(0.22,1,0.36,1).
+// =====================================================
+function initScrollSpring() {
+  const app = document.getElementById('app');
+  if (!app) return;
+
+  // Parámetros del muelle
+  const MAX_STRETCH    = 28;   // px máximos de estiramiento
+  const RESISTANCE     = 0.38; // factor de amortiguación (0–1)
+  const THRESHOLD_TOP  = 0;    // scroll position para activar top spring
+  const THRESHOLD_BOTTOM_PX = 60; // px antes del final para activar bottom spring
+
+  let touchStartY    = 0;
+  let touchStartScroll = 0;
+  let isTouching     = false;
+  let currentStretch = 0;
+  let releaseTimer   = null;
+
+  function getScrollInfo() {
+    const el = document.scrollingElement || document.documentElement;
+    return {
+      top:    el.scrollTop,
+      max:    el.scrollHeight - el.clientHeight,
+      height: el.clientHeight,
+    };
+  }
+
+  function applyStretch(px) {
+    currentStretch = Math.max(-MAX_STRETCH, Math.min(MAX_STRETCH, px));
+    app.style.setProperty('--scroll-stretch', currentStretch.toFixed(2));
+    app.classList.add('spring-active');
+    app.classList.remove('spring-release');
+  }
+
+  function releaseSpring() {
+    currentStretch = 0;
+    app.style.setProperty('--scroll-stretch', '0');
+    app.classList.remove('spring-active');
+    app.classList.add('spring-release');
+    clearTimeout(releaseTimer);
+    releaseTimer = setTimeout(() => {
+      app.classList.remove('spring-release');
+    }, 600);
+  }
+
+  // Touch events — para iOS/Android
+  app.addEventListener('touchstart', e => {
+    touchStartY      = e.touches[0].clientY;
+    touchStartScroll = getScrollInfo().top;
+    isTouching       = true;
+  }, { passive: true });
+
+  app.addEventListener('touchmove', e => {
+    if (!isTouching) return;
+    const info  = getScrollInfo();
+    const deltaY = e.touches[0].clientY - touchStartY;
+
+    // Top boundary: usuario intenta subir más allá del tope
+    if (info.top <= THRESHOLD_TOP && deltaY > 0) {
+      const stretch = deltaY * RESISTANCE;
+      applyStretch(stretch);
+      return;
+    }
+
+    // Bottom boundary: usuario intenta bajar más allá del fondo
+    if (info.top >= info.max - THRESHOLD_BOTTOM_PX && deltaY < 0) {
+      const stretch = deltaY * RESISTANCE;
+      applyStretch(stretch);
+      return;
+    }
+
+    // En scroll normal: liberar cualquier stretch residual
+    if (currentStretch !== 0) releaseSpring();
+  }, { passive: true });
+
+  app.addEventListener('touchend', () => {
+    isTouching = false;
+    if (currentStretch !== 0) releaseSpring();
+  }, { passive: true });
+
+  app.addEventListener('touchcancel', () => {
+    isTouching = false;
+    releaseSpring();
+  }, { passive: true });
+
+  // Wheel events — para desktop/trackpad
+  let wheelDebounce = null;
+  window.addEventListener('wheel', e => {
+    const info = getScrollInfo();
+
+    if (info.top <= 0 && e.deltaY < 0) {
+      // Overscroll hacia arriba
+      const stretch = Math.abs(e.deltaY) * RESISTANCE * 0.6;
+      applyStretch(stretch);
+    } else if (info.top >= info.max - 2 && e.deltaY > 0) {
+      // Overscroll hacia abajo
+      const stretch = -Math.abs(e.deltaY) * RESISTANCE * 0.6;
+      applyStretch(stretch);
+    }
+
+    clearTimeout(wheelDebounce);
+    wheelDebounce = setTimeout(releaseSpring, 120);
+  }, { passive: true });
 }
 
 // =====================================================
@@ -431,7 +523,7 @@ function stepCardHTML(step, i, id, isDone) {
 }
 
 // =====================================================
-// STEP INTERACTIONS (Checklist + Haptic visual)
+// STEP INTERACTIONS
 // =====================================================
 function attachStepInteractions(container) {
   container.querySelectorAll('.step-card').forEach(card => {
@@ -535,22 +627,18 @@ function renderTips() {
 }
 
 // =====================================================
-// THEME SYSTEM (manual > system > circadian)
+// THEME SYSTEM
 // =====================================================
 function initThemeSystem() {
   const mq  = window.matchMedia('(prefers-color-scheme: dark)');
   const btn = document.getElementById('themeToggle');
   if (!btn) return;
-
-  // Toggle click
   btn.addEventListener('click', () => {
     const next = document.documentElement.getAttribute('data-theme') === 'night' ? 'day' : 'night';
     manualTheme = next;
     localStorage.setItem(LS_THEME_MANUAL, next);
     applyCircadianCycle();
   });
-
-  // Long-press resets to system
   let pressTimer;
   btn.addEventListener('pointerdown', () => {
     pressTimer = setTimeout(() => {
@@ -563,8 +651,6 @@ function initThemeSystem() {
   });
   btn.addEventListener('pointerup',    () => clearTimeout(pressTimer));
   btn.addEventListener('pointerleave', () => clearTimeout(pressTimer));
-
-  // React to OS theme changes
   mq.addEventListener('change', () => {
     if (!manualTheme) applyCircadianCycle();
   });
